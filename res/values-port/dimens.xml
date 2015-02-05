@@ -1,0 +1,12 @@
+<resources>
+
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    
+    <dimen name="picking_label_width">180dp</dimen>
+    <dimen name="switch_width">120dp</dimen>
+       
+    <dimen name="button_margin1">20dp</dimen>
+    <dimen name="button_margin2">20dp</dimen>
+
+    <dimen name="photo_item_horizontal_margin">20dp</dimen>
+</resources>

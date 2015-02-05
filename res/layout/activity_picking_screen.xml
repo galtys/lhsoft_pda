@@ -1,0 +1,77 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.lhsoft.pda.ui.activities.PickingScreenActivity" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" >
+
+        <TextView
+            android:id="@+id/picking_label"
+            style="@style/TextStyle"
+            android:layout_width="@dimen/picking_label_width"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:text="@string/picking_label" />
+
+        <TextView
+            android:id="@+id/picking_name_edit"
+            style="@style/TextStyle"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/button_height"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="@dimen/switch_width"
+            android:layout_toRightOf="@id/picking_label"
+            android:background="@drawable/roundrect_background"
+            android:gravity="center"
+            android:text="@string/default_picking_name" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/table_view_group"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/group_margin"
+        android:layout_weight="3"
+        android:background="@drawable/rectangle_background"
+        android:padding="1dp" >
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/group_margin"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:orientation="horizontal" >
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/button_margin1"
+            android:layout_marginRight="@dimen/button_margin2"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/continue_button"
+            style="@style/PushButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginLeft="@dimen/button_margin2"
+            android:layout_marginRight="@dimen/button_margin1"
+            android:layout_weight="1"
+            android:background="@drawable/button_background"
+            android:onClick="onContinue"
+            android:text="@string/continue_button_label" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingBottom="@dimen/photo_item_horizontal_margin"
+    android:paddingTop="@dimen/photo_item_horizontal_margin" >
+
+    <Button
+        android:id="@+id/take_photo1"
+        style="@style/PushButtonStyle"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/button_height"
+        android:layout_marginLeft="@dimen/button_margin1"
+        android:layout_marginRight="@dimen/button_margin2"
+        android:layout_weight="1"
+        android:background="@drawable/button_background" />
+
+    <Button
+        android:id="@+id/take_photo2"
+        style="@style/PushButtonStyle"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/button_height"
+        android:layout_marginLeft="@dimen/button_margin2"
+        android:layout_marginRight="@dimen/button_margin1"
+        android:layout_weight="1"
+        android:background="@drawable/button_background" />
+
+</LinearLayout>

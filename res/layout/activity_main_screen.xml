@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:keepScreenOn="true"
     android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -23,12 +24,16 @@
             android:layout_centerVertical="true"
             android:text="@string/picking_label" />
 
-        <Switch
-            android:id="@+id/scanner"
+        <Button
+            android:id="@+id/home_button"
+            style="@style/PushButtonStyle"
             android:layout_width="@dimen/switch_width"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/button_height"
             android:layout_alignParentRight="true"
-            android:layout_centerVertical="true" />
+            android:layout_centerVertical="true"
+            android:background="@drawable/button_background"
+            android:onClick="onHome"
+            android:text="@string/home_button_label" />
 
         <TextView
             android:id="@+id/picking_name_edit"
@@ -36,7 +41,8 @@
             android:layout_width="0dp"
             android:layout_height="@dimen/button_height"
             android:layout_centerVertical="true"
-            android:layout_toLeftOf="@id/scanner"
+            android:layout_marginRight="@dimen/home_button_margin"
+            android:layout_toLeftOf="@id/home_button"
             android:layout_toRightOf="@id/picking_label"
             android:background="@drawable/roundrect_background"
             android:gravity="center"
@@ -44,9 +50,12 @@
     </RelativeLayout>
 
     <RelativeLayout
+        android:id="@+id/split_count_group"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" >
+        android:layout_weight="1"
+        android:descendantFocusability="beforeDescendants"
+        android:focusableInTouchMode="true" >
 
         <EditText
             android:id="@+id/split_count_edit"
@@ -57,7 +66,9 @@
             android:layout_centerVertical="true"
             android:background="@drawable/roundrect_background"
             android:gravity="center"
+            android:imeOptions="flagNoFullscreen"
             android:inputType="numberDecimal"
+            android:selectAllOnFocus="true"
             android:text="@string/default_split_count" />
     </RelativeLayout>
 
@@ -153,7 +164,6 @@
             android:layout_marginRight="@dimen/button_margin2"
             android:layout_weight="1"
             android:background="@drawable/button_background"
-            android:checked="false"
             android:onClick="onTakePhoto"
             android:text="@string/take_photo_button_label" />
 

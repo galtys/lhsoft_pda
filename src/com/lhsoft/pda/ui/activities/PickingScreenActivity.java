@@ -52,6 +52,7 @@ public class PickingScreenActivity extends Activity {
 		}
 		
 		mPickingListAdapter = new PickingListAdapter(isReturn);
+		mPickingList.setAdapter(mPickingListAdapter);
 		
 		getPickingData();
 	}
@@ -100,7 +101,7 @@ public class PickingScreenActivity extends Activity {
 					HashMap<String, Object> picking = (HashMap<String, Object>) ary[i];
 					
 					if (isReturn) {
-						mPickingListAdapter.addDimensionItem(
+						mPickingListAdapter.addPickingItem(
 								Double.valueOf(picking.get(Oerp.STOCK_MOVE_FIELD_PRODUCT_QTY).toString()).intValue(),
 								picking.get(Oerp.STOCK_MOVE_FIELD_NAME).toString(),
 								0,
@@ -108,7 +109,7 @@ public class PickingScreenActivity extends Activity {
 								Integer.valueOf(picking.get(Oerp.STOCK_MOVE_FIELD_REPAIR).toString())
 						);
 					} else {
-						mPickingListAdapter.addDimensionItem(
+						mPickingListAdapter.addPickingItem(
 								Double.valueOf(picking.get(Oerp.STOCK_MOVE_FIELD_PRODUCT_QTY).toString()).intValue(),
 								picking.get(Oerp.STOCK_MOVE_FIELD_NAME).toString(),
 								Integer.valueOf(picking.get(Oerp.STOCK_MOVE_FIELD_TO_FOLLOW).toString()),
@@ -116,12 +117,12 @@ public class PickingScreenActivity extends Activity {
 								0
 						);
 					}
+					mPickingListAdapter.notifyDataSetChanged();
 				}
 				
 				if (progressDialog.isShowing()) {
 					progressDialog.cancel();
 				}
-				mPickingList.setAdapter(mPickingListAdapter);
 			}
 			
 			@Override
@@ -135,9 +136,8 @@ public class PickingScreenActivity extends Activity {
 		});
 	}
 	
-	private void updatePicking(final XMLRPCMethod.XMLRPCMethodCallback callback) {
+	private void updatePicking(String button, final XMLRPCMethod.XMLRPCMethodCallback callback) {
 		final Resources res = getResources();
-		String button = Oerp.BUTTON_CONTINUE;
 
 		Integer packageCount = Integer.valueOf(SharedVars.mCurPicking.get(Oerp.PICKING_FIELD_PACK_COUNT).toString());
 		String packageType = SharedVars.mCurPicking.get(Oerp.PICKING_FIELD_PACK_TYPE).toString();
@@ -185,7 +185,7 @@ public class PickingScreenActivity extends Activity {
 		});
 	}
 	
-	private void setPickingData(final XMLRPCMethod.XMLRPCMethodCallback callback) {
+	private void setPickingData(final String button, final XMLRPCMethod.XMLRPCMethodCallback callback) {
 		int i;
 		final int count = mPickingListAdapter.getCount();
 		
@@ -205,7 +205,7 @@ public class PickingScreenActivity extends Activity {
 						// TODO Auto-generated method stub
 						mWriteCount++;
 						if (mWriteCount == count) {
-							updatePicking(callback);
+							updatePicking(button, callback);
 						}
 					}
 					
@@ -215,7 +215,7 @@ public class PickingScreenActivity extends Activity {
 						// callback.failed(message);
 						mWriteCount++;
 						if (mWriteCount == count) {
-							updatePicking(callback);
+							updatePicking(button, callback);
 						}
 					}
 				});
@@ -227,7 +227,7 @@ public class PickingScreenActivity extends Activity {
 						// TODO Auto-generated method stub
 						mWriteCount++;
 						if (mWriteCount == count) {
-							updatePicking(callback);
+							updatePicking(button, callback);
 						}
 					}
 					
@@ -237,7 +237,7 @@ public class PickingScreenActivity extends Activity {
 						// callback.failed(message);
 						mWriteCount++;
 						if (mWriteCount == count) {
-							updatePicking(callback);
+							updatePicking(button, callback);
 						}
 					}
 				});
@@ -245,12 +245,12 @@ public class PickingScreenActivity extends Activity {
 		}
 	}
 	
-	public void onContinue(View v) {
+	private void nextScreen(String button) {
 		Resources res = getResources();
 		final ProgressDialog progressDialog = ProgressDialog.show(this, "", res.getString(R.string.process_message));
 		progressDialog.show();
 
-		this.setPickingData(new XMLRPCMethod.XMLRPCMethodCallback() {
+		this.setPickingData(button, new XMLRPCMethod.XMLRPCMethodCallback() {
 
 			@Override
 			public void succesed(Object result) {
@@ -273,6 +273,14 @@ public class PickingScreenActivity extends Activity {
 				Toast.makeText(PickingScreenActivity.this, message, Toast.LENGTH_SHORT).show();
 			}
 		});
+	}
+	
+	public void onContinue(View v) {
+		nextScreen(Oerp.BUTTON_CONTINUE);
+	}
+	
+	public void onHome(View v) {
+		nextScreen(Oerp.BUTTON_HOME);
 	}
 	
 }

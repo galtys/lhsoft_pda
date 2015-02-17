@@ -4,7 +4,8 @@
     
     <dimen name="picking_label_width">180dp</dimen>
     <dimen name="switch_width">120dp</dimen>
-       
+    <dimen name="home_button_margin">20dp</dimen>
+    
     <dimen name="button_margin1">20dp</dimen>
     <dimen name="button_margin2">20dp</dimen>
 

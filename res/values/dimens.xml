@@ -8,6 +8,7 @@
     <dimen name="group_margin">10dp</dimen>
     
     <dimen name="switch_width">150dp</dimen>
+    <dimen name="home_button_margin">50dp</dimen>
     <dimen name="button_height">75dp</dimen>
     
     <dimen name="button_margin1">50dp</dimen>

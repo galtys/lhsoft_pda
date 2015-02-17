@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.lhsoft.pda.ui.activities.DimensionsScreenActivity" >
+    tools:context="com.lhsoft.pda.ui.activities.HomeScreenActivity" >
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -24,25 +24,20 @@
             android:layout_centerVertical="true"
             android:text="@string/picking_label" />
 
-        <Button
-            android:id="@+id/home_button"
-            style="@style/PushButtonStyle"
+        <Switch
+            android:id="@+id/scanner"
             android:layout_width="@dimen/switch_width"
-            android:layout_height="@dimen/button_height"
+            android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:background="@drawable/button_background"
-            android:onClick="onHome"
-            android:text="@string/home_button_label" />
+            android:layout_centerVertical="true" />
 
         <TextView
             android:id="@+id/picking_name_edit"
             style="@style/TextStyle"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="@dimen/button_height"
             android:layout_centerVertical="true"
-            android:layout_marginRight="@dimen/home_button_margin"
-            android:layout_toLeftOf="@id/home_button"
+            android:layout_toLeftOf="@id/scanner"
             android:layout_toRightOf="@id/picking_label"
             android:background="@drawable/roundrect_background"
             android:gravity="center"
@@ -53,21 +48,21 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="@dimen/group_margin"
-        android:layout_weight="3"
+        android:layout_weight="4"
         android:background="@drawable/rectangle_background"
         android:padding="1dp" >
 
         <RelativeLayout
-            android:id="@+id/dimensions_table_header"
+            android:id="@+id/home_table_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@android:color/black"
             android:paddingBottom="1dp" >
 
             <LinearLayout
-                style="@style/TableHeaderStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                style="@style/TableHeaderStyle"
                 android:gravity="center_vertical" >
 
                 <TextView
@@ -76,7 +71,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:minHeight="@dimen/table_row_height"
-                    android:text="@string/dimensions_table_header_trash" />
+                    android:text="@string/home_table_header_picking_name" />
 
                 <View
                     android:layout_width="1dp"
@@ -89,7 +84,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:minHeight="@dimen/table_row_height"
-                    android:text="@string/dimensions_table_header_pallet_no" />
+                    android:text="@string/home_table_header_stage1" />
 
                 <View
                     android:layout_width="1dp"
@@ -102,7 +97,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:minHeight="@dimen/table_row_height"
-                    android:text="@string/dimensions_table_header_width" />
+                    android:text="@string/home_table_header_stage2" />
 
                 <View
                     android:layout_width="1dp"
@@ -113,67 +108,21 @@
                     style="@style/TableHeaderStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_weight="2"
                     android:minHeight="@dimen/table_row_height"
-                    android:text="@string/dimensions_table_header_depth" />
-
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="match_parent"
-                    android:background="@android:color/black" />
-
-                <TextView
-                    style="@style/TableHeaderStyle"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:minHeight="@dimen/table_row_height"
-                    android:text="@string/dimensions_table_header_height" />
+                    android:text="@string/home_table_header_carrier" />
             </LinearLayout>
         </RelativeLayout>
 
         <ListView
-            android:id="@+id/dimensions_table"
+            android:id="@+id/home_table"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/dimensions_table_header"
-            android:descendantFocusability="beforeDescendants"
+            android:layout_below="@id/home_table_header"
+            android:descendantFocusability="afterDescendants"
             android:divider="@android:color/black"
             android:dividerHeight="1dp" >
         </ListView>
     </RelativeLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="@dimen/group_margin"
-        android:layout_weight="1"
-        android:gravity="center_vertical"
-        android:orientation="horizontal" >
-
-        <Button
-            android:id="@+id/fetch_dimensions_button"
-            style="@style/PushButtonStyle"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/button_height"
-            android:layout_marginLeft="@dimen/button_margin1"
-            android:layout_marginRight="@dimen/button_margin2"
-            android:layout_weight="1"
-            android:background="@drawable/button_background"
-            android:onClick="onFetchDimensions"
-            android:text="@string/fetch_dimensions_button_label" />
-
-        <Button
-            android:id="@+id/continue_button"
-            style="@style/PushButtonStyle"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/button_height"
-            android:layout_marginLeft="@dimen/button_margin2"
-            android:layout_marginRight="@dimen/button_margin1"
-            android:layout_weight="1"
-            android:background="@drawable/button_background"
-            android:onClick="onContinue"
-            android:text="@string/continue_button_label" />
-    </LinearLayout>
 
 </LinearLayout>

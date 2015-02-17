@@ -41,15 +41,18 @@ public class XMLRPCMethod extends Thread {
 	public void run() {
 		try {
 			Log.d(TAG, "Waiting other calling");
-			while (mRunning.get()) {
-				try {
-					sleep(10);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+			while (true) {
+				if (mRunning.compareAndSet(false, true)) {
+					break;
+				} else { 
+					try {
+						sleep(10);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 			}
-			mRunning.set(true);
 			
 			Log.d(TAG, "Start calling");
 			

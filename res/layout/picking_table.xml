@@ -3,34 +3,52 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/picking_table_header"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/table_row_height"
+        android:layout_height="wrap_content"
         android:background="@android:color/black"
         android:paddingBottom="1dp" >
 
-        <TextView
+        <LinearLayout
             style="@style/TableHeaderStyle"
-            android:layout_width="@dimen/picking_table_qty_column_width"
-            android:layout_height="match_parent"
-            android:layout_marginRight="1dp"
-            android:text="@string/picking_table_header_qty" />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical" >
 
-        <TextView
-            style="@style/TableHeaderStyle"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginRight="1dp"
-            android:layout_weight="1"
-            android:text="@string/picking_table_header_name" />
+            <TextView
+                style="@style/TableHeaderStyle"
+                android:layout_width="@dimen/picking_table_qty_column_width"
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/table_row_height"
+                android:text="@string/picking_table_header_qty" />
 
-        <TextView
-            style="@style/TableHeaderStyle"
-            android:layout_width="@dimen/picking_table_to_follow_column_width"
-            android:layout_height="match_parent"
-            android:text="@string/picking_table_header_to_follow" />
-    </LinearLayout>
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="@android:color/black" />
+
+            <TextView
+                style="@style/TableHeaderStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:minHeight="@dimen/table_row_height"
+                android:text="@string/picking_table_header_name" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="@android:color/black" />
+
+            <TextView
+                style="@style/TableHeaderStyle"
+                android:layout_width="@dimen/picking_table_to_follow_column_width"
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/table_row_height"
+                android:text="@string/picking_table_header_to_follow" />
+        </LinearLayout>
+    </RelativeLayout>
 
     <ListView
         android:id="@+id/picking_table"

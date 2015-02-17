@@ -21,11 +21,18 @@ public class PhotoListAdapter extends BaseAdapter{
 	
 	private boolean[][] mPhotoData;
 	
-	public PhotoListAdapter(String packType, int packCount) {
+	public PhotoListAdapter() {
+		mPackType = "";
+		mPackCount = 0;
+	}
+	
+	public void setData(String packType, int packCount) {
 		mPackType = packType;
 		mPackCount = packCount;
 		
 		mPhotoData = new boolean[packCount][2];
+		
+		notifyDataSetChanged();
 	}
 
 	public void setCheck(int position, int photo) {
@@ -58,6 +65,7 @@ public class PhotoListAdapter extends BaseAdapter{
 	public View getView(int position, View convertView, ViewGroup parent) {
 		// TODO Auto-generated method stub
 		View view;
+
 		if (convertView == null) {
 			view = LayoutInflater.from(parent.getContext()).inflate(R.layout.photo_item, parent, false);
 		} else {

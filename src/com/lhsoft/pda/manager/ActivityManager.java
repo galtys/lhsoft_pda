@@ -1,6 +1,7 @@
 package com.lhsoft.pda.manager;
 
 import com.lhsoft.pda.ui.activities.DimensionsScreenActivity;
+import com.lhsoft.pda.ui.activities.HomeScreenActivity;
 import com.lhsoft.pda.ui.activities.MainScreenActivity;
 import com.lhsoft.pda.ui.activities.PickingScreenActivity;
 import com.lhsoft.pda.ui.activities.TakePhotoScreenActivity;
@@ -29,7 +30,9 @@ public class ActivityManager {
 	
 	public void showNextScreenActivity(Activity curActivity, String nextScreen) {
 		Intent intent = null;
-		if (nextScreen.equals(Oerp.SCREEN_MAIN)) {
+		if (nextScreen.equals(Oerp.SCREEN_HOME)) {
+			intent = new Intent(curActivity, HomeScreenActivity.class);
+		} else if (nextScreen.equals(Oerp.SCREEN_MAIN)) {
 			intent = new Intent(curActivity, MainScreenActivity.class);
 			intent.putExtra(EXTRA_ISRETURN, false);
 		} else if (nextScreen.equals(Oerp.SCREEN_MAIN_RETURN)) {

@@ -12,7 +12,10 @@ public class Oerp {
 
 	public static final String PICKING_TYPE_IN = "in";
 	public static final String PICKING_TYPE_OUT = "out";
-
+	public static final String PICKING_STATE_ASSIGNED = "assigned";
+	public static final String PICKING_STATE_DONE = "done";
+	
+	public static final String SCREEN_HOME = "home";
 	public static final String SCREEN_MAIN = "main";
 	public static final String SCREEN_MAIN_RETURN = "main_return";
 	public static final String SCREEN_DIMENSIONS = "dimensions";
@@ -31,6 +34,8 @@ public class Oerp {
 	public static final String BUTTON_NONE = "none";
 	public static final String BUTTON_CONTINUE = "continue";
 	public static final String BUTTON_PHOTO = "photo";
+	public static final String BUTTON_HOME = "home";
+	public static final String BUTTON_SCAN = "scan";
 	public static final String BUTTON_ACTIVATED = "activated";
 
 	public static final String PICKING_FIELD_NAME = "name";
@@ -43,8 +48,13 @@ public class Oerp {
 	public static final String PICKING_FIELD_TODAY = "today";
 	public static final String PICKING_FIELD_MOVE_LINES = "move_lines";
 	public static final String PICKING_FIELD_STATE = "state";
+	public static final String PICKING_FIELD_STAGE1 = "stage1";
+	public static final String PICKING_FIELD_STAGE2 = "stage2";
+	public static final String PICKING_FIELD_CARRIER = "pjb_carrier_id";
+	
 	
 	public static final String DIMENSION_FIELD_PICKING = "picking_id";
+	public static final String DIMENSION_FIELD_TRASH = "trash";
 	public static final String DIMENSION_FIELD_NUMBER = "number";
 	public static final String DIMENSION_FIELD_WIDTH = "w";
 	public static final String DIMENSION_FIELD_DEPTH = "d";
@@ -89,7 +99,7 @@ public class Oerp {
 		mApiUrl = "http://galtys.com:8069/";
 		mUserName = "admin";
 		mPassword = "ENFIELD8ABA100";
-		mDatabase = "pjb-2015-01-09_1331";
+		mDatabase = "pjb-2015-02-16_1533";
 		
 		if (err == ConfFileParser.PARSE_OK) {
 			mApiUrl = result.get(API_URL);
@@ -202,6 +212,14 @@ public class Oerp {
 		method.call(params);
 	}
 
+	public void getCurrentPickings(XMLRPCMethod.XMLRPCMethodCallback callback) {
+		XMLRPCMethod method = new XMLRPCMethod(mClient, "execute", callback);
+		Object[] params = {
+				mDatabase, mUid, mPassword, "stock.picking", "get_current_pickings"
+		};
+		method.call(params);
+	}
+	
 	public void getPickingId(String pickingName, final XMLRPCMethod.XMLRPCMethodCallback callback) {
 		String[][] condition = {{PICKING_FIELD_NAME, "=", pickingName}};
 		this.search("stock.picking", condition, new XMLRPCMethod.XMLRPCMethodCallback() {
@@ -249,7 +267,10 @@ public class Oerp {
 				PICKING_FIELD_PACK_COUNT,
 				PICKING_FIELD_TODAY,
 				PICKING_FIELD_MOVE_LINES,
-				PICKING_FIELD_STATE 
+				PICKING_FIELD_STATE,
+				PICKING_FIELD_STAGE1,
+				PICKING_FIELD_STAGE2,
+				PICKING_FIELD_CARRIER
 		};
 		this.read("stock.picking", pIds, fnames, callback);
 	}
@@ -287,7 +308,13 @@ public class Oerp {
 
 				Object[] ary = (Object[]) result;
 				Integer[] dId = { Integer.valueOf(ary[0].toString()) };
-				String[] fnames = { DIMENSION_FIELD_NUMBER, DIMENSION_FIELD_WIDTH, DIMENSION_FIELD_DEPTH, DIMENSION_FIELD_HEIGHT };
+				String[] fnames = {
+						DIMENSION_FIELD_TRASH,
+						DIMENSION_FIELD_NUMBER, 
+						DIMENSION_FIELD_WIDTH, 
+						DIMENSION_FIELD_DEPTH, 
+						DIMENSION_FIELD_HEIGHT
+				};
 
 				read("stock.tracking", dId, fnames, new XMLRPCMethod.XMLRPCMethodCallback() {
 
@@ -313,6 +340,9 @@ public class Oerp {
 		});
 	}
 
+	public void fetchDimensions() {
+		
+	}
 	public void getStockMoves(Integer[] moveIds, final XMLRPCMethod.XMLRPCMethodCallback callback) {
 		String[] fnames = {
 				STOCK_MOVE_FIELD_NAME, 

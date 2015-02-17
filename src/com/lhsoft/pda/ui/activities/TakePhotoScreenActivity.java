@@ -38,7 +38,6 @@ public class TakePhotoScreenActivity extends Activity {
 	private ListView mPhotoList;
 	private PhotoListAdapter mPhotoListAdapter;
 	
-	
 	private int mCurPosition;
 	private int mCurPhoto;
 	
@@ -49,6 +48,9 @@ public class TakePhotoScreenActivity extends Activity {
 		
 		mPickingName = (TextView) findViewById(R.id.picking_name_edit);
 		mPhotoList = (ListView)findViewById(R.id.photo_list);
+		mPhotoListAdapter = new PhotoListAdapter();
+		
+		mPhotoList.setAdapter(mPhotoListAdapter);
 		
 		getPickingData();
 	}
@@ -121,7 +123,7 @@ public class TakePhotoScreenActivity extends Activity {
 				String packageType = SharedVars.mCurPicking.get(Oerp.PICKING_FIELD_PACK_TYPE).toString();
 				Integer packageCount = Integer.valueOf(SharedVars.mCurPicking.get(Oerp.PICKING_FIELD_PACK_COUNT).toString());
 				
-				mPhotoListAdapter = new PhotoListAdapter(packageType, packageCount);
+				mPhotoListAdapter.setData(packageType, packageCount);
 				mPhotoListAdapter.setAdapterListener(new PhotoListAdapter.OnAdapterListener() {
 					
 					@Override
@@ -145,6 +147,7 @@ public class TakePhotoScreenActivity extends Activity {
 						
 						if (Boolean.valueOf(ary2[j].toString())) {
 							mPhotoListAdapter.setCheck(j, i);
+							mPhotoListAdapter.notifyDataSetChanged();
 						}
 					}
 				}
@@ -154,9 +157,6 @@ public class TakePhotoScreenActivity extends Activity {
 				for (j = 0; j < package_ids.length; j++) {
 					Log.d(TAG, "Package Id = " + package_ids[j].toString());
 				}
-				
-				
-				mPhotoList.setAdapter(mPhotoListAdapter);
 				
 				if (progressDialog.isShowing()) {
 					progressDialog.cancel();
@@ -175,10 +175,8 @@ public class TakePhotoScreenActivity extends Activity {
 		
 	}
 	
-	private void setPickingData(final XMLRPCMethod.XMLRPCMethodCallback callback) {
+	private void setPickingData(String button, final XMLRPCMethod.XMLRPCMethodCallback callback) {
 		final Resources res = getResources();
-
-		String button = Oerp.BUTTON_CONTINUE;
 
 		Integer packageCount = Integer.valueOf(SharedVars.mCurPicking.get(Oerp.PICKING_FIELD_PACK_COUNT).toString());
 		String packageType = SharedVars.mCurPicking.get(Oerp.PICKING_FIELD_PACK_TYPE).toString();
@@ -227,7 +225,7 @@ public class TakePhotoScreenActivity extends Activity {
 
 	}
 	
-	public void onContinue(View v) {
+	private void nextScreen(final String button) {
 		final Resources res = getResources();
 		final ProgressDialog progressDialog = ProgressDialog.show(this, "", res.getString(R.string.process_message));
 		progressDialog.show();
@@ -238,9 +236,9 @@ public class TakePhotoScreenActivity extends Activity {
 			public void succesed(Object result) {
 				// TODO Auto-generated method stub
 				boolean hasPhoto = Boolean.valueOf(result.toString());
-				
-				if (!hasPhoto) {
-					setPickingData(new XMLRPCMethod.XMLRPCMethodCallback() {
+				Log.d(TAG, "has photo = " + hasPhoto);
+				if (hasPhoto) {
+					setPickingData(button, new XMLRPCMethod.XMLRPCMethodCallback() {
 
 						@Override
 						public void succesed(Object result) {
@@ -280,5 +278,13 @@ public class TakePhotoScreenActivity extends Activity {
 				Toast.makeText(TakePhotoScreenActivity.this, message, Toast.LENGTH_SHORT).show();
 			}
 		});
+	}
+	
+	public void onContinue(View v) {
+		nextScreen(Oerp.BUTTON_CONTINUE);
+	}
+	
+	public void onHome(View v) {
+		nextScreen(Oerp.BUTTON_HOME);
 	}
 }

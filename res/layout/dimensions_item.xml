@@ -1,39 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/TableRowStyle"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/table_row_height"
-    android:background="@android:color/black"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
     android:orientation="horizontal" >
+
+    <ToggleButton
+        android:id="@+id/dimensions_item_trash"
+        style="@style/TableRowStyle"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@drawable/bool_background"
+        android:minHeight="@dimen/table_row_height"
+        android:textOff=""
+        android:textOn="" />
+
+    <View
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:background="@android:color/black" />
 
     <TextView
         android:id="@+id/dimensions_item_pallet_no"
         style="@style/TableRowStyle"
         android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:minHeight="@dimen/table_row_height" />
+
+    <View
+        android:layout_width="1dp"
         android:layout_height="match_parent"
-        android:layout_marginRight="1dp"
-        android:layout_weight="1" />
+        android:background="@android:color/black" />
 
     <EditText
         android:id="@+id/dimensions_item_width"
         style="@style/TableRowStyle"
         android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:imeOptions="actionNext|flagNoFullscreen"
+        android:inputType="numberDecimal"
+        android:minHeight="@dimen/table_row_height" />
+
+    <View
+        android:layout_width="1dp"
         android:layout_height="match_parent"
-        android:layout_marginRight="1dp"
-        android:layout_weight="1" />
+        android:background="@android:color/black" />
 
     <EditText
         android:id="@+id/dimensions_item_depth"
         style="@style/TableRowStyle"
         android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:imeOptions="actionNext|flagNoFullscreen"
+        android:inputType="numberDecimal"
+        android:minHeight="@dimen/table_row_height" />
+
+    <View
+        android:layout_width="1dp"
         android:layout_height="match_parent"
-        android:layout_marginRight="1dp"
-        android:layout_weight="1" />
+        android:background="@android:color/black" />
 
     <EditText
         android:id="@+id/dimensions_item_height"
         style="@style/TableRowStyle"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1" />
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:imeOptions="actionDone|flagNoFullscreen"
+        android:inputType="numberDecimal"
+        android:minHeight="@dimen/table_row_height" />
 
 </LinearLayout>

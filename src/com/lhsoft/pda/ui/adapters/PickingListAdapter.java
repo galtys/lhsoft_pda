@@ -38,7 +38,7 @@ public class PickingListAdapter extends BaseAdapter{
 		mPickings = new ArrayList<PickingItem>();
 	}
 	
-	synchronized public void addDimensionItem(Integer productQty, String name, Integer toFollow, Integer returned, Integer repair) {
+	synchronized public void addPickingItem(Integer productQty, String name, Integer toFollow, Integer returned, Integer repair) {
 		PickingItem pi = new PickingItem();
 		
 		pi.productQty = productQty;
@@ -48,6 +48,21 @@ public class PickingListAdapter extends BaseAdapter{
 		pi.repair = repair;
 		
 		mPickings.add(pi);
+	}
+	
+	synchronized private void setToFollow(int position, int newToFollow) {
+		PickingItem pi = mPickings.get(position);
+		pi.toFollow = newToFollow;
+	}
+	
+	synchronized private void setReturned(int position, int newReturned) {
+		PickingItem pi = mPickings.get(position);
+		pi.returned = newReturned;
+	}
+	
+	synchronized private void setRepair(int position, int newRepair) {
+		PickingItem pi = mPickings.get(position);
+		pi.repair = newRepair;
 	}
 	
 	public PickingItem getPickingItem(int index) {
@@ -86,7 +101,7 @@ public class PickingListAdapter extends BaseAdapter{
 			view = convertView;
 		}
 		
-		final PickingItem pi = getItem(position);
+		PickingItem pi = getItem(position);
 		
 		if (!isReturn) {
 			TextView qtyLabel = (TextView) view.findViewById(R.id.picking_item_qty);
@@ -97,31 +112,8 @@ public class PickingListAdapter extends BaseAdapter{
 			nameLabel.setText(pi.name);
 			toFollowEdit.setText(pi.toFollow.toString());
 			
-			toFollowEdit.addTextChangedListener(new TextWatcher() {
-				
-				@Override
-				public void onTextChanged(CharSequence s, int start, int before, int count) {
-					// TODO Auto-generated method stub
-				}
-				
-				@Override
-				public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-					// TODO Auto-generated method stub
-				}
-				
-				@Override
-				public void afterTextChanged(Editable s) {
-					// TODO Auto-generated method stub
-					Integer newValue = null;
-					try {
-						newValue = Integer.valueOf(s.toString());
-					} catch(NumberFormatException e) {
-						newValue = 0; 
-					}
-					
-					pi.toFollow = newValue;
-				}
-			});
+			toFollowEdit.setTag(position);
+			toFollowEdit.addTextChangedListener(new CustomTextWatcher(toFollowEdit, position, CustomTextWatcher.WATCHER_TOFOLLOW));
 		} else {
 			TextView returnQtyLabel = (TextView) view.findViewById(R.id.picking_return_item_qty);
 			TextView returnNameLabel = (TextView) view.findViewById(R.id.picking_return_item_name);
@@ -133,59 +125,58 @@ public class PickingListAdapter extends BaseAdapter{
 			returnReturnedEdit.setText(pi.returned.toString());
 			returnRepairEdit.setText(pi.repair.toString());
 			
-			returnReturnedEdit.addTextChangedListener(new TextWatcher() {
-				
-				@Override
-				public void onTextChanged(CharSequence s, int start, int before, int count) {
-					// TODO Auto-generated method stub
-				}
-				
-				@Override
-				public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-					// TODO Auto-generated method stub
-				}
-				
-				@Override
-				public void afterTextChanged(Editable s) {
-					// TODO Auto-generated method stub
-					Integer newValue = null;
-					try {
-						newValue = Integer.valueOf(s.toString());
-					} catch(NumberFormatException e) {
-						newValue = 0; 
-					}
-					
-					pi.returned = newValue;
-				}
-			});
+			returnReturnedEdit.setTag(position);
+			returnRepairEdit.setTag(position);
 			
-			returnRepairEdit.addTextChangedListener(new TextWatcher() {
-				
-				@Override
-				public void onTextChanged(CharSequence s, int start, int before, int count) {
-					// TODO Auto-generated method stub
-				}
-				
-				@Override
-				public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-					// TODO Auto-generated method stub
-				}
-				
-				@Override
-				public void afterTextChanged(Editable s) {
-					// TODO Auto-generated method stub
-					Integer newValue = null;
-					try {
-						newValue = Integer.valueOf(s.toString());
-					} catch(NumberFormatException e) {
-						newValue = 0; 
-					}
-					
-					pi.repair = newValue;
-				}
-			});
+			returnReturnedEdit.addTextChangedListener(new CustomTextWatcher(returnReturnedEdit, position, CustomTextWatcher.WATCHER_RETURNED));
+			returnRepairEdit.addTextChangedListener(new CustomTextWatcher(returnRepairEdit, position, CustomTextWatcher.WATCHER_REPAIR));
 		}
 		
 		return view;
+	}
+	
+	private class CustomTextWatcher implements TextWatcher {
+		private EditText mEditText;
+		private int mPosition;
+		private int mWatcher;
+		public static final int WATCHER_TOFOLLOW = 0;
+		public static final int WATCHER_RETURNED = 1;
+		public static final int WATCHER_REPAIR = 2;
+		
+		public CustomTextWatcher(EditText editText, int position, int watcher) {
+			mEditText = editText;
+			mPosition = position;
+			mWatcher = watcher;
+		}
+		
+		@Override
+		public void afterTextChanged(Editable s) {
+			Integer newValue = null;
+			try {
+				newValue = Integer.valueOf(s.toString());
+			} catch(NumberFormatException e) {
+				newValue = 0; 
+			}
+			if ((Integer) mEditText.getTag() == mPosition) {
+				if (mWatcher == WATCHER_TOFOLLOW) {
+					setToFollow(mPosition, newValue);
+				} else if (mWatcher == WATCHER_RETURNED) {
+					setReturned(mPosition, newValue);
+				} else if (mWatcher == WATCHER_REPAIR) {
+					setRepair(mPosition, newValue);
+				}
+			}
+		}
+
+		@Override
+		public void beforeTextChanged(CharSequence s, int start, int count,
+				int after) {
+		}
+
+		@Override
+		public void onTextChanged(CharSequence s, int start, int before,
+				int count) {
+		}
+		
 	}
 }

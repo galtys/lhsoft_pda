@@ -20,13 +20,21 @@
 	<string name="partially_button_return_label">PARTIALLY Returned</string>
 	<string name="take_photo_button_label">Take Photos</string>
 	<string name="continue_button_label">CONTINUE</string>
+	<string name="fetch_dimensions_button_label">Fetch Dimensions</string>
+	<string name="home_button_label">Home</string>
+	
+	<string name="home_table_header_picking_name">Picking Name</string>
+	<string name="home_table_header_stage1">Stage 1 (Dimensions)</string>
+	<string name="home_table_header_stage2">Stage 2 (Photos)</string>
+	<string name="home_table_header_carrier">Carrier</string>
 	
 	<string name="photo_box_button1_label">Box %d, Photo 1</string>
 	<string name="photo_box_button2_label">Box %d, Photo 2</string>
 	<string name="photo_pallet_button1_label">Pallet %d, Photo 1</string>
 	<string name="photo_pallet_button2_label">Pallet %d, Photo 2</string>
 	
-	<string name="dimensions_table_header_pallet_no">Pallet No:</string>
+	<string name="dimensions_table_header_trash">Trash</string>
+	<string name="dimensions_table_header_pallet_no">Pallet No</string>
 	<string name="dimensions_table_header_width">Width</string>
 	<string name="dimensions_table_header_depth">Depth</string>
 	<string name="dimensions_table_header_height">Height</string>
@@ -46,15 +54,17 @@
 	<string name="connected_oerp_server_success_message">Connected to oerp server successfully.</string>
 	<string name="scanning_message">Scanning&#8230;</string>
 	<string name="scanning_failed_message">Scan failed.</string>
+	<string name="picking_already_done_message">This picking is already done.</string>
 	<string name="process_message">Processing&#8230;</string>
 	<string name="getting_picking_data_from_server_message">Getting picking data from server&#8230;</string>
 	<string name="no_picking_data_from_server_message">No picking data.</string>
 	<string name="picking_name_invalid_message">Picking name is invalid.</string>
+	<string name="picking_name_not_found_message">Picking name not found in server.</string>
 	<string name="package_count_invalid_message">Package count is invalid.</string>
 	<string name="package_type_invalid_message">You must select package type.</string>
 	<string name="qty_type_invalid_message">You must select partial or full.</string>
 	<string name="uploading_photo_message">Uploading photo&#8230;</string>
 	<string name="take_all_photo_message">You must take all photos.</string>
-	<string name="upload_photo_success_message">Photo uploading successed.</string>
+	<string name="upload_photo_success_message">Photo uploaded successfully.</string>
 	<string name="upload_photo_fail_message">Photo uploading failed.</string>
 </resources>

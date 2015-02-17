@@ -1,6 +1,7 @@
 package com.lhsoft.pda.ui.activities;
 
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.lhsoft.pda.R;
 import com.lhsoft.pda.manager.ActivityManager;
@@ -30,7 +31,8 @@ public class DimensionsScreenActivity extends Activity {
 	private ListView mDimensionsList;
 	private DimensionsListAdapter mDimensionsListAdapter;
 
-	private int mReadCount;
+	private AtomicInteger mReadCount;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -40,7 +42,8 @@ public class DimensionsScreenActivity extends Activity {
 
 		mDimensionsListAdapter = new DimensionsListAdapter();
 		mDimensionsList = (ListView)findViewById(R.id.dimensions_table);
-
+		mDimensionsList.setAdapter(mDimensionsListAdapter);
+		
 		getPickingData();
 	}
 
@@ -53,7 +56,7 @@ public class DimensionsScreenActivity extends Activity {
 		String pickingName = SharedVars.mCurPicking.get(Oerp.PICKING_FIELD_NAME).toString();
 		mPickingName.setText(pickingName);
 		
-		mReadCount = 0;
+		mReadCount = new AtomicInteger(0);
 
 		final Integer packageCount = Integer.valueOf(SharedVars.mCurPicking.get(Oerp.PICKING_FIELD_PACK_COUNT).toString());
 		for (i = 0; i < packageCount; i ++) {
@@ -64,12 +67,13 @@ public class DimensionsScreenActivity extends Activity {
 				public void succesed(Object result) {
 					// TODO Auto-generated method stub
 					if (result == null) {
-						mDimensionsListAdapter.addDimensionItem(number, 0, 0, 0);
+						mDimensionsListAdapter.addDimensionItem(false, number, 0, 0, 0);
 					} else {
 						Object[] ary = (Object[]) result;
 						
 						HashMap<String, Object> dimension = (HashMap<String, Object>) ary[0]; 
 						mDimensionsListAdapter.addDimensionItem(
+								Boolean.valueOf(dimension.get(Oerp.DIMENSION_FIELD_TRASH).toString()).booleanValue(),
 								number, 
 								Integer.valueOf(dimension.get(Oerp.DIMENSION_FIELD_WIDTH).toString()), 
 								Integer.valueOf(dimension.get(Oerp.DIMENSION_FIELD_DEPTH).toString()), 
@@ -77,12 +81,11 @@ public class DimensionsScreenActivity extends Activity {
 								);
 					}
 					
-					mReadCount++;
-					if (packageCount.equals(mReadCount)) {
+					if (packageCount.equals(mReadCount.incrementAndGet())) {
 						if (progressDialog.isShowing()) {
 							progressDialog.cancel();
 						}
-						mDimensionsList.setAdapter(mDimensionsListAdapter);
+						mDimensionsListAdapter.notifyDataSetChanged();
 					}
 				}
 
@@ -91,19 +94,18 @@ public class DimensionsScreenActivity extends Activity {
 					// TODO Auto-generated method stub
 					Toast.makeText(DimensionsScreenActivity.this, message, Toast.LENGTH_SHORT).show();
 
-					mReadCount++;
-					if (packageCount.equals(mReadCount)) {
+					if (packageCount.equals(mReadCount.incrementAndGet())) {
 						if (progressDialog.isShowing()) {
 							progressDialog.cancel();
 						}
-						mDimensionsList.setAdapter(mDimensionsListAdapter);
+						mDimensionsListAdapter.notifyDataSetChanged();
 					}
 				}
 			});
 		}
 	}
 
-	private void setPickingData(final XMLRPCMethod.XMLRPCMethodCallback callback) {
+	private void setPickingData(final String button, final XMLRPCMethod.XMLRPCMethodCallback callback) {
 		final Resources res = getResources();
 		int i;
 		int count = mDimensionsListAdapter.getCount();
@@ -113,6 +115,7 @@ public class DimensionsScreenActivity extends Activity {
 			DimensionItem di = mDimensionsListAdapter.getDimensionItem(i);
 			HashMap<String, Object> dimension = new HashMap<String, Object>();
 
+			dimension.put(Oerp.DIMENSION_FIELD_TRASH, di.trash);
 			dimension.put(Oerp.DIMENSION_FIELD_NUMBER, di.number);
 			dimension.put(Oerp.DIMENSION_FIELD_WIDTH, di.width);
 			dimension.put(Oerp.DIMENSION_FIELD_DEPTH, di.depth);
@@ -126,7 +129,6 @@ public class DimensionsScreenActivity extends Activity {
 			@Override
 			public void succesed(Object result) {
 				// TODO Auto-generated method stub
-				String button = Oerp.BUTTON_CONTINUE;
 
 				Integer packageCount = Integer.valueOf(SharedVars.mCurPicking.get(Oerp.PICKING_FIELD_PACK_COUNT).toString());
 				String packageType = SharedVars.mCurPicking.get(Oerp.PICKING_FIELD_PACK_TYPE).toString();
@@ -182,12 +184,12 @@ public class DimensionsScreenActivity extends Activity {
 		});
 	}
 
-	public void onContinue(View v) {
+	private void nextScreen(String button) {
 		Resources res = getResources();
 		final ProgressDialog progressDialog = ProgressDialog.show(this, "", res.getString(R.string.process_message));
 		progressDialog.show();
 
-		this.setPickingData(new XMLRPCMethod.XMLRPCMethodCallback() {
+		this.setPickingData(button, new XMLRPCMethod.XMLRPCMethodCallback() {
 
 			@Override
 			public void succesed(Object result) {
@@ -210,5 +212,17 @@ public class DimensionsScreenActivity extends Activity {
 				Toast.makeText(DimensionsScreenActivity.this, message, Toast.LENGTH_SHORT).show();
 			}
 		});
+	}
+	
+	public void onContinue(View v) {
+		nextScreen(Oerp.BUTTON_CONTINUE);
+	}
+	
+	public void onHome(View v) {
+		nextScreen(Oerp.BUTTON_HOME);
+	}
+	
+	public void onFetchDimensions(View v) {
+		
 	}
 }

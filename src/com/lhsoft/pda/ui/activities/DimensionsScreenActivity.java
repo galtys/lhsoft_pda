@@ -65,7 +65,6 @@ public class DimensionsScreenActivity extends Activity {
 
 				@Override
 				public void succesed(Object result) {
-					// TODO Auto-generated method stub
 					if (result == null) {
 						mDimensionsListAdapter.addDimensionItem(false, number, 0, 0, 0);
 					} else {
@@ -91,7 +90,6 @@ public class DimensionsScreenActivity extends Activity {
 
 				@Override
 				public void failed(String message) {
-					// TODO Auto-generated method stub
 					Toast.makeText(DimensionsScreenActivity.this, message, Toast.LENGTH_SHORT).show();
 
 					if (packageCount.equals(mReadCount.incrementAndGet())) {
@@ -128,7 +126,6 @@ public class DimensionsScreenActivity extends Activity {
 
 			@Override
 			public void succesed(Object result) {
-				// TODO Auto-generated method stub
 
 				Integer packageCount = Integer.valueOf(SharedVars.mCurPicking.get(Oerp.PICKING_FIELD_PACK_COUNT).toString());
 				String packageType = SharedVars.mCurPicking.get(Oerp.PICKING_FIELD_PACK_TYPE).toString();
@@ -138,12 +135,10 @@ public class DimensionsScreenActivity extends Activity {
 
 					@Override
 					public void succesed(Object result) {
-						// TODO Auto-generated method stub
 						Oerp.getInstance().getPicking(SharedVars.mCurPickingId, new XMLRPCMethod.XMLRPCMethodCallback() {
 
 							@Override
 							public void succesed(Object result) {
-								// TODO Auto-generated method stub
 								if (result == null) {
 									Toast.makeText(DimensionsScreenActivity.this, res.getString(R.string.no_picking_data_from_server_message), Toast.LENGTH_SHORT).show();
 									return;
@@ -162,7 +157,6 @@ public class DimensionsScreenActivity extends Activity {
 
 							@Override
 							public void failed(String message) {
-								// TODO Auto-generated method stub
 								callback.failed(message);
 							}
 						});
@@ -170,7 +164,6 @@ public class DimensionsScreenActivity extends Activity {
 
 					@Override
 					public void failed(String message) {
-						// TODO Auto-generated method stub
 						callback.failed(message);
 					}
 				});
@@ -178,7 +171,6 @@ public class DimensionsScreenActivity extends Activity {
 
 			@Override
 			public void failed(String message) {
-				// TODO Auto-generated method stub
 				callback.failed(message);
 			}
 		});
@@ -193,7 +185,6 @@ public class DimensionsScreenActivity extends Activity {
 
 			@Override
 			public void succesed(Object result) {
-				// TODO Auto-generated method stub
 				if (progressDialog.isShowing()) {
 					progressDialog.cancel();
 				}
@@ -205,7 +196,6 @@ public class DimensionsScreenActivity extends Activity {
 
 			@Override
 			public void failed(String message) {
-				// TODO Auto-generated method stub
 				if (progressDialog.isShowing()) {
 					progressDialog.cancel();
 				}
@@ -223,6 +213,6 @@ public class DimensionsScreenActivity extends Activity {
 	}
 	
 	public void onFetchDimensions(View v) {
-		
+		nextScreen(Oerp.BUTTON_FETCH_DIMENSIONS);
 	}
 }

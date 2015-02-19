@@ -18,7 +18,6 @@ public class ActivityManager {
 	static private ActivityManager mInstance = null;
 	
 	public ActivityManager() {
-		// TODO Auto-generated constructor stub
 	}
 	
 	static public ActivityManager getInstance() {

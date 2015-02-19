@@ -4,11 +4,13 @@ import java.util.ArrayList;
 
 import com.lhsoft.pda.R;
 import com.lhsoft.pda.ui.adapters.DimensionsListAdapter.DimensionItem;
+import com.lhsoft.pda.utils.SharedVars;
 
 import android.content.Context;
 import android.content.res.Resources;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +21,8 @@ import android.widget.TextView;
 
 public class PickingListAdapter extends BaseAdapter{
 
+	private static final String TAG = "PickingListAdapter";
+	
 	private boolean isReturn;
 
 	public class PickingItem {
@@ -71,25 +75,21 @@ public class PickingListAdapter extends BaseAdapter{
 	
 	@Override
 	public int getCount() {
-		// TODO Auto-generated method stub
 		return mPickings.size();
 	}
 
 	@Override
 	public PickingItem getItem(int position) {
-		// TODO Auto-generated method stub
 		return mPickings.get(position);
 	}
 
 	@Override
 	public long getItemId(int position) {
-		// TODO Auto-generated method stub
 		return position;
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		// TODO Auto-generated method stub
 		View view;
 		if (convertView == null) {
 			if (!isReturn) {
@@ -103,6 +103,8 @@ public class PickingListAdapter extends BaseAdapter{
 		
 		PickingItem pi = getItem(position);
 		
+		Log.e(TAG, "name: " + pi.name);
+		
 		if (!isReturn) {
 			TextView qtyLabel = (TextView) view.findViewById(R.id.picking_item_qty);
 			TextView nameLabel = (TextView) view.findViewById(R.id.picking_item_name);
@@ -114,6 +116,8 @@ public class PickingListAdapter extends BaseAdapter{
 			
 			toFollowEdit.setTag(position);
 			toFollowEdit.addTextChangedListener(new CustomTextWatcher(toFollowEdit, position, CustomTextWatcher.WATCHER_TOFOLLOW));
+			
+			toFollowEdit.setOnFocusChangeListener(SharedVars.mFocusChangeListener);
 		} else {
 			TextView returnQtyLabel = (TextView) view.findViewById(R.id.picking_return_item_qty);
 			TextView returnNameLabel = (TextView) view.findViewById(R.id.picking_return_item_name);
@@ -130,6 +134,9 @@ public class PickingListAdapter extends BaseAdapter{
 			
 			returnReturnedEdit.addTextChangedListener(new CustomTextWatcher(returnReturnedEdit, position, CustomTextWatcher.WATCHER_RETURNED));
 			returnRepairEdit.addTextChangedListener(new CustomTextWatcher(returnRepairEdit, position, CustomTextWatcher.WATCHER_REPAIR));
+			
+			returnReturnedEdit.setOnFocusChangeListener(SharedVars.mFocusChangeListener);
+			returnRepairEdit.setOnFocusChangeListener(SharedVars.mFocusChangeListener);
 		}
 		
 		return view;
@@ -169,13 +176,11 @@ public class PickingListAdapter extends BaseAdapter{
 		}
 
 		@Override
-		public void beforeTextChanged(CharSequence s, int start, int count,
-				int after) {
+		public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 		}
 
 		@Override
-		public void onTextChanged(CharSequence s, int start, int before,
-				int count) {
+		public void onTextChanged(CharSequence s, int start, int before, int count) {
 		}
 		
 	}

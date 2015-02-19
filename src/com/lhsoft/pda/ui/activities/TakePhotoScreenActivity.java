@@ -74,7 +74,6 @@ public class TakePhotoScreenActivity extends Activity {
 				
 				@Override
 				public void succesed(Object result) {
-					// TODO Auto-generated method stub
 					Log.d(TAG, "Upload photo result = " + result.toString());
 					
 					boolean success = Boolean.valueOf(result.toString());
@@ -95,7 +94,6 @@ public class TakePhotoScreenActivity extends Activity {
 				
 				@Override
 				public void failed(String message) {
-					// TODO Auto-generated method stub
 					if (progressDialog.isShowing()) {
 			    		progressDialog.cancel();
 			    	}
@@ -117,7 +115,6 @@ public class TakePhotoScreenActivity extends Activity {
 			
 			@Override
 			public void succesed(Object result) {
-				// TODO Auto-generated method stub
 				Log.d(TAG, result.toString());
 				
 				String packageType = SharedVars.mCurPicking.get(Oerp.PICKING_FIELD_PACK_TYPE).toString();
@@ -128,7 +125,6 @@ public class TakePhotoScreenActivity extends Activity {
 					
 					@Override
 					public void onPhoto(int position, int photo) {
-						// TODO Auto-generated method stub
 						mCurPosition = position;
 						mCurPhoto = photo;
 						
@@ -165,7 +161,6 @@ public class TakePhotoScreenActivity extends Activity {
 			
 			@Override
 			public void failed(String message) {
-				// TODO Auto-generated method stub
 				if (progressDialog.isShowing()) {
 					progressDialog.cancel();
 				}
@@ -186,12 +181,10 @@ public class TakePhotoScreenActivity extends Activity {
 
 			@Override
 			public void succesed(Object result) {
-				// TODO Auto-generated method stub
 				Oerp.getInstance().getPicking(SharedVars.mCurPickingId, new XMLRPCMethod.XMLRPCMethodCallback() {
 
 					@Override
 					public void succesed(Object result) {
-						// TODO Auto-generated method stub
 						if (result == null) {
 							Toast.makeText(TakePhotoScreenActivity.this, res.getString(R.string.no_picking_data_from_server_message), Toast.LENGTH_SHORT).show();
 							return;
@@ -210,7 +203,6 @@ public class TakePhotoScreenActivity extends Activity {
 
 					@Override
 					public void failed(String message) {
-						// TODO Auto-generated method stub
 						callback.failed(message);
 					}
 				});
@@ -218,14 +210,17 @@ public class TakePhotoScreenActivity extends Activity {
 
 			@Override
 			public void failed(String message) {
-				// TODO Auto-generated method stub
 				callback.failed(message);
 			}
 		});
 
 	}
 	
-	private void nextScreen(final String button) {
+	private void nextScreen(String button) {
+		nextScreen(button, true);
+	}
+	
+	private void nextScreen(final String button, final boolean validation) {
 		final Resources res = getResources();
 		final ProgressDialog progressDialog = ProgressDialog.show(this, "", res.getString(R.string.process_message));
 		progressDialog.show();
@@ -234,15 +229,13 @@ public class TakePhotoScreenActivity extends Activity {
 			
 			@Override
 			public void succesed(Object result) {
-				// TODO Auto-generated method stub
 				boolean hasPhoto = Boolean.valueOf(result.toString());
 				Log.d(TAG, "has photo = " + hasPhoto);
-				if (hasPhoto) {
+				if (hasPhoto || !validation) {
 					setPickingData(button, new XMLRPCMethod.XMLRPCMethodCallback() {
 
 						@Override
 						public void succesed(Object result) {
-							// TODO Auto-generated method stub
 							if (progressDialog.isShowing()) {
 								progressDialog.cancel();
 							}
@@ -254,7 +247,6 @@ public class TakePhotoScreenActivity extends Activity {
 
 						@Override
 						public void failed(String message) {
-							// TODO Auto-generated method stub
 							if (progressDialog.isShowing()) {
 								progressDialog.cancel();
 							}
@@ -271,7 +263,6 @@ public class TakePhotoScreenActivity extends Activity {
 			
 			@Override
 			public void failed(String message) {
-				// TODO Auto-generated method stub
 				if (progressDialog.isShowing()) {
 					progressDialog.cancel();
 				}
@@ -285,6 +276,6 @@ public class TakePhotoScreenActivity extends Activity {
 	}
 	
 	public void onHome(View v) {
-		nextScreen(Oerp.BUTTON_HOME);
+		nextScreen(Oerp.BUTTON_HOME, false);
 	}
 }

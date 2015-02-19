@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.lhsoft.pda.R;
+import com.lhsoft.pda.utils.SharedVars;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -81,25 +82,21 @@ public class DimensionsListAdapter extends BaseAdapter{
 	
 	@Override
 	public int getCount() {
-		// TODO Auto-generated method stub
 		return mDimensions.size();
 	}
 
 	@Override
 	public DimensionItem getItem(int position) {
-		// TODO Auto-generated method stub
 		return mDimensions.get(position + 1);
 	}
 
 	@Override
 	public long getItemId(int position) {
-		// TODO Auto-generated method stub
 		return position;
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		// TODO Auto-generated method stub
 		View view;
 
 		if (convertView == null) {
@@ -122,7 +119,7 @@ public class DimensionsListAdapter extends BaseAdapter{
 		DimensionItem di = getItem(position);
 
 		Log.e(TAG, position + " " + di.width + " " + di.height + " " + di.depth);
-		trashButton.setChecked(di.trash);
+		trashButton.setChecked(!di.trash);
 		palletNoLabel.setText(di.number.toString());
 		widthEdit.setText(di.width.toString());
 		depthEdit.setText(di.depth.toString());
@@ -133,7 +130,7 @@ public class DimensionsListAdapter extends BaseAdapter{
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				int pos = ((Integer) buttonView.getTag()).intValue();
-				setTrash(pos, isChecked);
+				setTrash(pos, !isChecked);
 			}
 		});
 		
@@ -141,35 +138,9 @@ public class DimensionsListAdapter extends BaseAdapter{
 		depthEdit.addTextChangedListener(new CustomTextWatcher(depthEdit, position, CustomTextWatcher.WATCHER_DEPTH));
 		heightEdit.addTextChangedListener(new CustomTextWatcher(heightEdit, position, CustomTextWatcher.WATCHER_HEIGHT));
 		
-		View.OnFocusChangeListener focusChangeListener = new View.OnFocusChangeListener() {
-			
-			@Override
-			public void onFocusChange(final View v, boolean hasFocus) {
-				if (hasFocus) {
-					Handler handler = new Handler();
-					handler.post(new Runnable() {
-						public void run() {
-							Log.d(TAG, "focus on");
-							try {
-								Thread.sleep(100);
-							} catch (InterruptedException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-							
-							EditText numEdit = (EditText) v;
-							String text = numEdit.getText().toString();
-							numEdit.setText(text);
-							numEdit.selectAll();
-						}
-					});
-				}
-			}
-		};
-		
-		widthEdit.setOnFocusChangeListener(focusChangeListener);
-		depthEdit.setOnFocusChangeListener(focusChangeListener);
-		heightEdit.setOnFocusChangeListener(focusChangeListener);
+		widthEdit.setOnFocusChangeListener(SharedVars.mFocusChangeListener);
+		depthEdit.setOnFocusChangeListener(SharedVars.mFocusChangeListener);
+		heightEdit.setOnFocusChangeListener(SharedVars.mFocusChangeListener);
 		
 		return view;
 	}
@@ -208,13 +179,11 @@ public class DimensionsListAdapter extends BaseAdapter{
 		}
 
 		@Override
-		public void beforeTextChanged(CharSequence s, int start, int count,
-				int after) {
+		public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 		}
 
 		@Override
-		public void onTextChanged(CharSequence s, int start, int before,
-				int count) {
+		public void onTextChanged(CharSequence s, int start, int before, int count) {
 		}
 		
 	}

@@ -15,7 +15,6 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -33,6 +32,7 @@ public class PickingScreenActivity extends Activity {
 	private PickingListAdapter mPickingListAdapter;
 
 	private int mWriteCount;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -83,7 +83,6 @@ public class PickingScreenActivity extends Activity {
 			
 			@Override
 			public void succesed(Object result) {
-				// TODO Auto-generated method stub
 				
 				if (result == null) {				
 					failed(res.getString(R.string.no_picking_data_from_server_message));
@@ -127,7 +126,6 @@ public class PickingScreenActivity extends Activity {
 			
 			@Override
 			public void failed(String message) {
-				// TODO Auto-generated method stub
 				if (progressDialog.isShowing()) {
 					progressDialog.cancel();
 				}
@@ -147,12 +145,10 @@ public class PickingScreenActivity extends Activity {
 
 			@Override
 			public void succesed(Object result) {
-				// TODO Auto-generated method stub
 				Oerp.getInstance().getPicking(SharedVars.mCurPickingId, new XMLRPCMethod.XMLRPCMethodCallback() {
 
 					@Override
 					public void succesed(Object result) {
-						// TODO Auto-generated method stub
 						if (result == null) {
 							Toast.makeText(PickingScreenActivity.this, res.getString(R.string.no_picking_data_from_server_message), Toast.LENGTH_SHORT).show();
 							return;
@@ -171,7 +167,6 @@ public class PickingScreenActivity extends Activity {
 
 					@Override
 					public void failed(String message) {
-						// TODO Auto-generated method stub
 						callback.failed(message);
 					}
 				});
@@ -179,7 +174,6 @@ public class PickingScreenActivity extends Activity {
 
 			@Override
 			public void failed(String message) {
-				// TODO Auto-generated method stub
 				callback.failed(message);
 			}
 		});
@@ -202,7 +196,6 @@ public class PickingScreenActivity extends Activity {
 					
 					@Override
 					public void succesed(Object result) {
-						// TODO Auto-generated method stub
 						mWriteCount++;
 						if (mWriteCount == count) {
 							updatePicking(button, callback);
@@ -211,7 +204,6 @@ public class PickingScreenActivity extends Activity {
 					
 					@Override
 					public void failed(String message) {
-						// TODO Auto-generated method stub
 						// callback.failed(message);
 						mWriteCount++;
 						if (mWriteCount == count) {
@@ -224,7 +216,6 @@ public class PickingScreenActivity extends Activity {
 					
 					@Override
 					public void succesed(Object result) {
-						// TODO Auto-generated method stub
 						mWriteCount++;
 						if (mWriteCount == count) {
 							updatePicking(button, callback);
@@ -233,7 +224,6 @@ public class PickingScreenActivity extends Activity {
 					
 					@Override
 					public void failed(String message) {
-						// TODO Auto-generated method stub
 						// callback.failed(message);
 						mWriteCount++;
 						if (mWriteCount == count) {
@@ -254,7 +244,6 @@ public class PickingScreenActivity extends Activity {
 
 			@Override
 			public void succesed(Object result) {
-				// TODO Auto-generated method stub
 				if (progressDialog.isShowing()) {
 					progressDialog.cancel();
 				}
@@ -266,7 +255,6 @@ public class PickingScreenActivity extends Activity {
 
 			@Override
 			public void failed(String message) {
-				// TODO Auto-generated method stub
 				if (progressDialog.isShowing()) {
 					progressDialog.cancel();
 				}

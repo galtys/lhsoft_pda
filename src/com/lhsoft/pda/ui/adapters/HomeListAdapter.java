@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import com.lhsoft.pda.R;
 
+import android.text.SpannableString;
+import android.text.style.UnderlineSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +17,8 @@ public class HomeListAdapter extends BaseAdapter{
 
 	private static final String TAG = "HomeListAdapter";
 
+	private OnPickingClickListener mPickingClickListener;
+	
 	public class HomeItem {
 		public String pickingName;
 		public boolean stage1;
@@ -24,9 +28,11 @@ public class HomeListAdapter extends BaseAdapter{
 	
 	private ArrayList<HomeItem> mHomes;
 	
-	public HomeListAdapter() {
+	public HomeListAdapter(OnPickingClickListener pickingClickListener) {
 		mHomes = new ArrayList<HomeItem>();
 		mHomes.clear();
+		
+		mPickingClickListener = pickingClickListener;
 	}
 	
 	synchronized public void addHomeItem(String pickingName, boolean stage1, boolean stage2, String carrier) {
@@ -39,27 +45,28 @@ public class HomeListAdapter extends BaseAdapter{
 		mHomes.add(mi);
 	}
 	
+	public void clear() {
+		mHomes.clear();
+		notifyDataSetChanged();
+	}
+	
 	@Override
 	public int getCount() {
-		// TODO Auto-generated method stub
 		return mHomes.size();
 	}
 
 	@Override
 	public HomeItem getItem(int position) {
-		// TODO Auto-generated method stub
 		return mHomes.get(position);
 	}
 
 	@Override
 	public long getItemId(int position) {
-		// TODO Auto-generated method stub
 		return position;
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		// TODO Auto-generated method stub
 		View view;
 		if (convertView == null) {
 			view = LayoutInflater.from(parent.getContext()).inflate(R.layout.home_item, parent, false);
@@ -73,7 +80,10 @@ public class HomeListAdapter extends BaseAdapter{
 		TextView carrierLabel = (TextView) view.findViewById(R.id.home_item_carrier);
 			
 		HomeItem hi = getItem(position);
-		pickingNameLabel.setText(hi.pickingName);
+		
+		SpannableString content = new SpannableString(hi.pickingName);
+		content.setSpan(new UnderlineSpan(), 0, content.length(), 0);
+		pickingNameLabel.setText(content);
 		
 		stage1Button.setChecked(hi.stage1);
 		stage1Button.setEnabled(false);
@@ -83,7 +93,19 @@ public class HomeListAdapter extends BaseAdapter{
 		
 		carrierLabel.setText(hi.carrier);
 		
+		pickingNameLabel.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				String pickingName = ((TextView) v).getText().toString();
+				mPickingClickListener.onClick(pickingName);
+			}
+		});
+		
 		return view;
 	}
 
+	public interface OnPickingClickListener {
+		public void onClick(String pickingName);
+	}
 }

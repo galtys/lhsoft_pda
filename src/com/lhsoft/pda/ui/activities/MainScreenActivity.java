@@ -86,15 +86,17 @@ public class MainScreenActivity extends Activity {
 	}
 
 	private void nextScreen(String button) {
+		nextScreen(button, true);
+	}
+	private void nextScreen(String button, boolean validation) {
 		Resources res = getResources();
 		final ProgressDialog progressDialog = ProgressDialog.show(this, "", res.getString(R.string.process_message));
 		progressDialog.show();
 
-		this.setPickingData(button, new XMLRPCMethod.XMLRPCMethodCallback() {
+		this.setPickingData(button, validation, new XMLRPCMethod.XMLRPCMethodCallback() {
 
 			@Override
 			public void succesed(Object result) {
-				// TODO Auto-generated method stub
 				if (progressDialog.isShowing()) {
 					progressDialog.cancel();
 				}
@@ -106,7 +108,6 @@ public class MainScreenActivity extends Activity {
 
 			@Override
 			public void failed(String message) {
-				// TODO Auto-generated method stub
 				if (progressDialog.isShowing()) {
 					progressDialog.cancel();
 				}
@@ -124,7 +125,7 @@ public class MainScreenActivity extends Activity {
 	}
 
 	public void onHome(View v) {
-		nextScreen(Oerp.BUTTON_HOME);
+		nextScreen(Oerp.BUTTON_HOME, false);
 	}
 	
 	private void resetPackTypeButtons() {
@@ -158,7 +159,7 @@ public class MainScreenActivity extends Activity {
 		}
 	}
 
-	private void setPickingData(final String button, final XMLRPCMethod.XMLRPCMethodCallback callback) {
+	private void setPickingData(final String button, boolean validation, final XMLRPCMethod.XMLRPCMethodCallback callback) {
 		final Resources res = getResources();
 
 		if (SharedVars.mCurPickingId == null) {
@@ -178,7 +179,7 @@ public class MainScreenActivity extends Activity {
 			packageType = Oerp.PACKAGE_TYPE_BOX;
 		} else if (mPackTypeGroup.getCheckedRadioButtonId() == R.id.pallets_button) {
 			packageType = Oerp.PACKAGE_TYPE_PALLET;
-		} else {
+		} else if (validation) {
 			callback.failed(res.getString(R.string.package_type_invalid_message));
 			return;
 		}
@@ -188,7 +189,7 @@ public class MainScreenActivity extends Activity {
 			qtyType = Oerp.QTY_TYPE_FULL;
 		} else if (mQuantityTypeGroup.getCheckedRadioButtonId() == R.id.partially_button) {
 			qtyType = Oerp.QTY_TYPE_PARTIAL;
-		} else {
+		} else if (validation) {
 			callback.failed(res.getString(R.string.qty_type_invalid_message));
 			return;
 		}
@@ -197,12 +198,10 @@ public class MainScreenActivity extends Activity {
 
 			@Override
 			public void succesed(Object result) {
-				// TODO Auto-generated method stub
 				Oerp.getInstance().getPicking(SharedVars.mCurPickingId, new XMLRPCMethod.XMLRPCMethodCallback() {
 
 					@Override
 					public void succesed(Object result) {
-						// TODO Auto-generated method stub
 						if (result == null) {
 							failed(res.getString(R.string.no_picking_data_from_server_message));
 							return;
@@ -223,7 +222,6 @@ public class MainScreenActivity extends Activity {
 
 					@Override
 					public void failed(String message) {
-						// TODO Auto-generated method stub
 						callback.failed(message);
 					}
 				});
@@ -231,7 +229,6 @@ public class MainScreenActivity extends Activity {
 
 			@Override
 			public void failed(String message) {
-				// TODO Auto-generated method stub
 				callback.failed(message);
 			}
 		});

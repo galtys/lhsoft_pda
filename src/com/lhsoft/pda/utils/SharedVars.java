@@ -2,7 +2,10 @@ package com.lhsoft.pda.utils;
 
 import java.util.HashMap;
 
+import android.os.Handler;
 import android.util.Log;
+import android.view.View;
+import android.widget.EditText;
 
 import com.lhsoft.pda.R;
 
@@ -11,6 +14,30 @@ public class SharedVars {
 	static public HashMap<String, Object> mCurPicking = null;
 	static public boolean mScanner = true;
 	static public String mInternalStoragePath = null;
+	
+	static public View.OnFocusChangeListener mFocusChangeListener = new View.OnFocusChangeListener() {
+		
+		@Override
+		public void onFocusChange(final View v, boolean hasFocus) {
+			if (hasFocus) {
+				Handler handler = new Handler();
+				handler.post(new Runnable() {
+					public void run() {
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+						
+						EditText numEdit = (EditText) v;
+						String text = numEdit.getText().toString();
+						numEdit.setText(text);
+						numEdit.selectAll();
+					}
+				});
+			}
+		}
+	};
 	
 	static public void logCurPicking() {
 		if (mCurPicking != null) {

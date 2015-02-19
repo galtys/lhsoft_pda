@@ -36,6 +36,7 @@ public class Oerp {
 	public static final String BUTTON_PHOTO = "photo";
 	public static final String BUTTON_HOME = "home";
 	public static final String BUTTON_SCAN = "scan";
+	public static final String BUTTON_FETCH_DIMENSIONS = "fetch_dimensions";
 	public static final String BUTTON_ACTIVATED = "activated";
 
 	public static final String PICKING_FIELD_NAME = "name";
@@ -51,6 +52,8 @@ public class Oerp {
 	public static final String PICKING_FIELD_STAGE1 = "stage1";
 	public static final String PICKING_FIELD_STAGE2 = "stage2";
 	public static final String PICKING_FIELD_CARRIER = "pjb_carrier_id";
+	public static final String PICKING_FIELD_DELIVERY_PARTNER = "delivery_partner_id";
+	public static final String PICKING_FIELD_ALLOW = "allow_pda";
 	
 	
 	public static final String DIMENSION_FIELD_PICKING = "picking_id";
@@ -131,7 +134,6 @@ public class Oerp {
 
 			@Override
 			public void succesed(Object result) {
-				// TODO Auto-generated method stub
 				Log.d(TAG, "Uid = " + result.toString());
 
 				mUid = Integer.valueOf(result.toString());
@@ -226,7 +228,6 @@ public class Oerp {
 
 			@Override
 			public void succesed(Object result) {
-				// TODO Auto-generated method stub
 				if (result == null) {
 					callback.succesed(null);
 					return;
@@ -241,7 +242,6 @@ public class Oerp {
 
 			@Override
 			public void failed(String message) {
-				// TODO Auto-generated method stub
 				callback.failed(message);
 			}
 		});
@@ -257,6 +257,10 @@ public class Oerp {
 
 	public void getPicking(Integer pId, XMLRPCMethod.XMLRPCMethodCallback callback) {
 		Integer[] pIds = { pId };
+		getPicking(pIds, callback);
+	}
+	
+	public void getPicking(Integer[] pIds, XMLRPCMethod.XMLRPCMethodCallback callback) {
 		String[] fnames = {
 				PICKING_FIELD_NAME,
 				PICKING_FIELD_TYPE,
@@ -270,7 +274,9 @@ public class Oerp {
 				PICKING_FIELD_STATE,
 				PICKING_FIELD_STAGE1,
 				PICKING_FIELD_STAGE2,
-				PICKING_FIELD_CARRIER
+				PICKING_FIELD_CARRIER,
+				PICKING_FIELD_DELIVERY_PARTNER,
+				PICKING_FIELD_ALLOW
 		};
 		this.read("stock.picking", pIds, fnames, callback);
 	}
@@ -300,7 +306,6 @@ public class Oerp {
 
 			@Override
 			public void succesed(Object result) {
-				// TODO Auto-generated method stub
 				if (result == null) {
 					callback.succesed(null);
 					return;
@@ -320,13 +325,11 @@ public class Oerp {
 
 					@Override
 					public void succesed(Object result) {
-						// TODO Auto-generated method stub
 						callback.succesed(result);
 					}
 
 					@Override
 					public void failed(String message) {
-						// TODO Auto-generated method stub
 						callback.failed(message);
 					}
 				});
@@ -334,7 +337,6 @@ public class Oerp {
 
 			@Override
 			public void failed(String message) {
-				// TODO Auto-generated method stub
 				callback.failed(message);
 			}
 		});
@@ -343,6 +345,7 @@ public class Oerp {
 	public void fetchDimensions() {
 		
 	}
+	
 	public void getStockMoves(Integer[] moveIds, final XMLRPCMethod.XMLRPCMethodCallback callback) {
 		String[] fnames = {
 				STOCK_MOVE_FIELD_NAME, 

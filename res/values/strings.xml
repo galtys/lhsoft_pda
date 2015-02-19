@@ -22,6 +22,7 @@
 	<string name="continue_button_label">CONTINUE</string>
 	<string name="fetch_dimensions_button_label">Fetch Dimensions</string>
 	<string name="home_button_label">Home</string>
+	<string name="refresh_button_label">Refresh</string>
 	
 	<string name="home_table_header_picking_name">Picking Name</string>
 	<string name="home_table_header_stage1">Stage 1 (Dimensions)</string>
@@ -55,6 +56,7 @@
 	<string name="scanning_message">Scanning&#8230;</string>
 	<string name="scanning_failed_message">Scan failed.</string>
 	<string name="picking_already_done_message">This picking is already done.</string>
+	<string name="picking_not_allowed_message">This picking is not allowed.</string>
 	<string name="process_message">Processing&#8230;</string>
 	<string name="getting_picking_data_from_server_message">Getting picking data from server&#8230;</string>
 	<string name="no_picking_data_from_server_message">No picking data.</string>

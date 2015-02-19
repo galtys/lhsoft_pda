@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Switch;
@@ -40,8 +41,6 @@ public class HomeScreenActivity extends Activity {
 
 	AtomicBoolean isScanning = new AtomicBoolean(false);
 	
-	private AtomicInteger mReadCount;
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -55,12 +54,17 @@ public class HomeScreenActivity extends Activity {
 
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				// TODO Auto-generated method stub
 				SharedVars.mScanner = isChecked;
 			}
 		});
 		
-		mHomeListAdapter = new HomeListAdapter();
+		mHomeListAdapter = new HomeListAdapter(new HomeListAdapter.OnPickingClickListener() {
+			
+			@Override
+			public void onClick(String pickingName) {
+				checkPickingId(pickingName);
+			}
+		});
 		mHomeList = (ListView)findViewById(R.id.home_table);
 		mHomeList.setAdapter(mHomeListAdapter);
 		
@@ -104,7 +108,6 @@ public class HomeScreenActivity extends Activity {
 
 			@Override
 			public void failed(String message) {
-				// TODO Auto-generated method stub
 				if (progressDialog.isShowing()) {
 					progressDialog.cancel();
 				}
@@ -116,7 +119,6 @@ public class HomeScreenActivity extends Activity {
 
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						// TODO Auto-generated method stub
 						HomeScreenActivity.this.finish();
 					}
 				})
@@ -218,7 +220,6 @@ public class HomeScreenActivity extends Activity {
 
 			@Override
 			public void succesed(Object result) {
-				// TODO Auto-generated method stub
 				if (result == null) {
 					SharedVars.mCurPickingId = null;
 					failed(res.getString(R.string.picking_name_not_found_message));
@@ -233,7 +234,6 @@ public class HomeScreenActivity extends Activity {
 					
 					@Override
 					public void succesed(Object result) {
-						// TODO Auto-generated method stub
 						
 						if (result == null) {
 							failed(res.getString(R.string.no_picking_data_from_server_message));
@@ -253,6 +253,12 @@ public class HomeScreenActivity extends Activity {
 							return;
 						}
 						
+						boolean allow = Boolean.valueOf(SharedVars.mCurPicking.get(Oerp.PICKING_FIELD_ALLOW).toString());
+						if (!allow) {
+							failed(res.getString(R.string.picking_not_allowed_message));
+							return;
+						}
+						
 						if (progressDialog.isShowing()) {
 							progressDialog.cancel();
 						}
@@ -264,7 +270,6 @@ public class HomeScreenActivity extends Activity {
 					
 					@Override
 					public void failed(String message) {
-						// TODO Auto-generated method stub
 						if (progressDialog.isShowing()) {
 							progressDialog.cancel();
 						}
@@ -275,7 +280,6 @@ public class HomeScreenActivity extends Activity {
 
 			@Override
 			public void failed(String message) {
-				// TODO Auto-generated method stub
 				if (progressDialog.isShowing()) {
 					progressDialog.cancel();
 				}
@@ -289,11 +293,12 @@ public class HomeScreenActivity extends Activity {
 		final ProgressDialog progressDialog = ProgressDialog.show(this, "", res.getString(R.string.getting_picking_data_from_server_message));
 		progressDialog.show();
 
+		mHomeListAdapter.clear();
+		
 		Oerp.getInstance().getCurrentPickings(new XMLRPCMethod.XMLRPCMethodCallback() {
 
 			@Override
 			public void succesed(Object result) {
-				// TODO Auto-generated method stub
 				if (result == null) {
 					failed(res.getString(R.string.no_picking_data_from_server_message));
 					return;
@@ -306,36 +311,38 @@ public class HomeScreenActivity extends Activity {
 				}
 				
 				int i;
-				final int aryCount = ary.length;
-				mReadCount = new AtomicInteger(0);
 				
-				for (i = 0; i < aryCount; i ++) {
-					Integer pId = Integer.valueOf(ary[i].toString());
-					Oerp.getInstance().getPicking(pId, new XMLRPCMethod.XMLRPCMethodCallback() {
+				Integer[] pIds = new Integer[ary.length];
+				for (i = 0; i < ary.length; i ++) {
+					pIds[i] = Integer.valueOf(ary[i].toString());
+				}
+				
+				Oerp.getInstance().getPicking(pIds, new XMLRPCMethod.XMLRPCMethodCallback() {
+					
+					@Override
+					public void succesed(Object result) {
 						
-						@Override
-						public void succesed(Object result) {
-							// TODO Auto-generated method stub
-							
-							if (result == null) {
-								failed(res.getString(R.string.no_picking_data_from_server_message));
-								return;
-							}
-							Object[] ary = (Object[]) result;
-							if (ary.length == 0) {
-								failed(res.getString(R.string.no_picking_data_from_server_message));
-								return;
-							}
-							
+						if (result == null) {
+							failed(res.getString(R.string.no_picking_data_from_server_message));
+							return;
+						}
+						Object[] ary = (Object[]) result;
+						if (ary.length == 0) {
+							failed(res.getString(R.string.no_picking_data_from_server_message));
+							return;
+						}
+						
+						int j;
+						for (j = 0; j < ary.length; j++) {
 							HashMap<String, Object> picking;
-							picking = (HashMap<String, Object>) ary[0];
+							picking = (HashMap<String, Object>) ary[j];
 							
 							String pickingName = picking.get(Oerp.PICKING_FIELD_NAME).toString();
 							boolean stage1 = Boolean.valueOf(picking.get(Oerp.PICKING_FIELD_STAGE1).toString()).booleanValue();
 							boolean stage2 = Boolean.valueOf(picking.get(Oerp.PICKING_FIELD_STAGE2).toString()).booleanValue();
 							
 							String carrier;
-							Object objCarrier = picking.get(Oerp.PICKING_FIELD_CARRIER);
+							Object objCarrier = picking.get(Oerp.PICKING_FIELD_DELIVERY_PARTNER);
 							try {
 								Object[] aryCarrier = (Object[]) objCarrier;
 								carrier = aryCarrier[1].toString();
@@ -345,32 +352,26 @@ public class HomeScreenActivity extends Activity {
 							
 							mHomeListAdapter.addHomeItem(pickingName, stage1, stage2, carrier);
 							mHomeListAdapter.notifyDataSetChanged();
-							
-							if (aryCount == mReadCount.incrementAndGet()) {
-								if (progressDialog.isShowing()) {
-									progressDialog.cancel();
-								}
-							}
 						}
-
-						@Override
-						public void failed(String message) {
-							// TODO Auto-generated method stub
-							Toast.makeText(HomeScreenActivity.this, message, Toast.LENGTH_SHORT).show();
-
-							if (aryCount == mReadCount.incrementAndGet()) {
-								if (progressDialog.isShowing()) {
-									progressDialog.cancel();
-								}
-							}
+						
+						if (progressDialog.isShowing()) {
+							progressDialog.cancel();
 						}
-					});
-				}
+					}
+
+					@Override
+					public void failed(String message) {
+						Toast.makeText(HomeScreenActivity.this, message, Toast.LENGTH_SHORT).show();
+
+						if (progressDialog.isShowing()) {
+							progressDialog.cancel();
+						}
+					}
+				});
 			}
 			
 			@Override
-			public void failed(String message) {
-				// TODO Auto-generated method stub				
+			public void failed(String message) {				
 				if (progressDialog.isShowing()) {
 					progressDialog.cancel();
 				}
@@ -390,12 +391,10 @@ public class HomeScreenActivity extends Activity {
 
 			@Override
 			public void succesed(Object result) {
-				// TODO Auto-generated method stub
 				Oerp.getInstance().getPicking(SharedVars.mCurPickingId, new XMLRPCMethod.XMLRPCMethodCallback() {
 
 					@Override
 					public void succesed(Object result) {
-						// TODO Auto-generated method stub
 						if (result == null) {
 							Toast.makeText(HomeScreenActivity.this, res.getString(R.string.no_picking_data_from_server_message), Toast.LENGTH_SHORT).show();
 							return;
@@ -414,7 +413,6 @@ public class HomeScreenActivity extends Activity {
 
 					@Override
 					public void failed(String message) {
-						// TODO Auto-generated method stub
 						callback.failed(message);
 					}
 				});
@@ -422,7 +420,6 @@ public class HomeScreenActivity extends Activity {
 
 			@Override
 			public void failed(String message) {
-				// TODO Auto-generated method stub
 				callback.failed(message);
 			}
 		});
@@ -437,7 +434,6 @@ public class HomeScreenActivity extends Activity {
 
 			@Override
 			public void succesed(Object result) {
-				// TODO Auto-generated method stub
 				if (progressDialog.isShowing()) {
 					progressDialog.cancel();
 				}
@@ -449,7 +445,6 @@ public class HomeScreenActivity extends Activity {
 
 			@Override
 			public void failed(String message) {
-				// TODO Auto-generated method stub
 				if (progressDialog.isShowing()) {
 					progressDialog.cancel();
 				}
@@ -458,4 +453,7 @@ public class HomeScreenActivity extends Activity {
 		});
 	}
 
+	public void onRefresh(View v) {
+		getPickingData();
+	}
 }

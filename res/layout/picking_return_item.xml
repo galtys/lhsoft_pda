@@ -38,8 +38,7 @@
         android:layout_height="wrap_content"
         android:imeOptions="actionNext|flagNoFullscreen"
         android:inputType="numberDecimal"
-        android:minHeight="@dimen/table_row_height"
-        android:selectAllOnFocus="true" />
+        android:minHeight="@dimen/table_row_height" />
 
     <View
         android:layout_width="1dp"
@@ -53,7 +52,6 @@
         android:layout_height="wrap_content"
         android:imeOptions="actionDone|flagNoFullscreen"
         android:inputType="numberDecimal"
-        android:minHeight="@dimen/table_row_height"
-        android:selectAllOnFocus="true" />
+        android:minHeight="@dimen/table_row_height" />
 
 </LinearLayout>

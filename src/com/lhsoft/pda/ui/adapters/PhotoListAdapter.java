@@ -15,6 +15,8 @@ import android.widget.TextView;
 
 public class PhotoListAdapter extends BaseAdapter{
 
+	private static final String TAG = "PhotoListAdapter";
+	
 	private OnAdapterListener mAdapterListener;
 	private int mPackCount;
 	private String mPackType;
@@ -45,25 +47,21 @@ public class PhotoListAdapter extends BaseAdapter{
 	
 	@Override
 	public int getCount() {
-		// TODO Auto-generated method stub
 		return mPackCount;
 	}
 
 	@Override
 	public boolean[] getItem(int position) {
-		// TODO Auto-generated method stub
 		return mPhotoData[position];
 	}
 
 	@Override
 	public long getItemId(int position) {
-		// TODO Auto-generated method stub
 		return position;
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		// TODO Auto-generated method stub
 		View view;
 
 		if (convertView == null) {
@@ -108,7 +106,6 @@ public class PhotoListAdapter extends BaseAdapter{
 
 			@Override
 			public void onClick(View v) {
-				// TODO Auto-generated method stub
 				mAdapterListener.onPhoto(pos, 0);
 			}
 			
@@ -118,7 +115,6 @@ public class PhotoListAdapter extends BaseAdapter{
 
 			@Override
 			public void onClick(View v) {
-				// TODO Auto-generated method stub
 				mAdapterListener.onPhoto(pos, 1);
 			}
 			

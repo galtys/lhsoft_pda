@@ -61,7 +61,7 @@ public class DimensionsScreenActivity extends Activity {
 		final Integer packageCount = Integer.valueOf(SharedVars.mCurPicking.get(Oerp.PICKING_FIELD_PACK_COUNT).toString());
 		for (i = 0; i < packageCount; i ++) {
 			final Integer number = Integer.valueOf(i + 1);
-			Oerp.getInstance().getDimension(SharedVars.mCurPickingId, number, new XMLRPCMethod.XMLRPCMethodCallback() {
+			Oerp.getInstance(DimensionsScreenActivity.this).getDimension(SharedVars.mCurPickingId, number, new XMLRPCMethod.XMLRPCMethodCallback() {
 
 				@Override
 				public void succesed(Object result) {
@@ -72,11 +72,11 @@ public class DimensionsScreenActivity extends Activity {
 						
 						HashMap<String, Object> dimension = (HashMap<String, Object>) ary[0]; 
 						mDimensionsListAdapter.addDimensionItem(
-								Boolean.valueOf(dimension.get(Oerp.DIMENSION_FIELD_TRASH).toString()).booleanValue(),
+								Boolean.valueOf(dimension.get(Oerp.TRACKING_FIELD_TRASH).toString()).booleanValue(),
 								number, 
-								Integer.valueOf(dimension.get(Oerp.DIMENSION_FIELD_WIDTH).toString()), 
-								Integer.valueOf(dimension.get(Oerp.DIMENSION_FIELD_DEPTH).toString()), 
-								Integer.valueOf(dimension.get(Oerp.DIMENSION_FIELD_HEIGHT).toString())
+								Integer.valueOf(dimension.get(Oerp.TRACKING_FIELD_WIDTH).toString()), 
+								Integer.valueOf(dimension.get(Oerp.TRACKING_FIELD_DEPTH).toString()), 
+								Integer.valueOf(dimension.get(Oerp.TRACKING_FIELD_HEIGHT).toString())
 								);
 					}
 					
@@ -84,6 +84,7 @@ public class DimensionsScreenActivity extends Activity {
 						if (progressDialog.isShowing()) {
 							progressDialog.cancel();
 						}
+						mDimensionsListAdapter.sort();
 						mDimensionsListAdapter.notifyDataSetChanged();
 					}
 				}
@@ -96,6 +97,7 @@ public class DimensionsScreenActivity extends Activity {
 						if (progressDialog.isShowing()) {
 							progressDialog.cancel();
 						}
+						mDimensionsListAdapter.sort();
 						mDimensionsListAdapter.notifyDataSetChanged();
 					}
 				}
@@ -113,16 +115,16 @@ public class DimensionsScreenActivity extends Activity {
 			DimensionItem di = mDimensionsListAdapter.getDimensionItem(i);
 			HashMap<String, Object> dimension = new HashMap<String, Object>();
 
-			dimension.put(Oerp.DIMENSION_FIELD_TRASH, di.trash);
-			dimension.put(Oerp.DIMENSION_FIELD_NUMBER, di.number);
-			dimension.put(Oerp.DIMENSION_FIELD_WIDTH, di.width);
-			dimension.put(Oerp.DIMENSION_FIELD_DEPTH, di.depth);
-			dimension.put(Oerp.DIMENSION_FIELD_HEIGHT, di.height);
+			dimension.put(Oerp.TRACKING_FIELD_TRASH, di.trash);
+			dimension.put(Oerp.TRACKING_FIELD_NUMBER, di.number);
+			dimension.put(Oerp.TRACKING_FIELD_WIDTH, di.width);
+			dimension.put(Oerp.TRACKING_FIELD_DEPTH, di.depth);
+			dimension.put(Oerp.TRACKING_FIELD_HEIGHT, di.height);
 
 			dimensions[i] = dimension;
 		}
 
-		Oerp.getInstance().updateDimensions(SharedVars.mCurPickingId, dimensions, new XMLRPCMethod.XMLRPCMethodCallback() {
+		Oerp.getInstance(DimensionsScreenActivity.this).updateDimensions(SharedVars.mCurPickingId, dimensions, new XMLRPCMethod.XMLRPCMethodCallback() {
 
 			@Override
 			public void succesed(Object result) {
@@ -131,11 +133,11 @@ public class DimensionsScreenActivity extends Activity {
 				String packageType = SharedVars.mCurPicking.get(Oerp.PICKING_FIELD_PACK_TYPE).toString();
 				String qtyType = SharedVars.mCurPicking.get(Oerp.PICKING_FIELD_QTY_TYPE).toString();
 
-				Oerp.getInstance().updatePicking(SharedVars.mCurPickingId, packageCount, packageType, qtyType, button, new XMLRPCMethod.XMLRPCMethodCallback() {
+				Oerp.getInstance(DimensionsScreenActivity.this).updatePicking(SharedVars.mCurPickingId, packageCount, packageType, qtyType, button, new XMLRPCMethod.XMLRPCMethodCallback() {
 
 					@Override
 					public void succesed(Object result) {
-						Oerp.getInstance().getPicking(SharedVars.mCurPickingId, new XMLRPCMethod.XMLRPCMethodCallback() {
+						Oerp.getInstance(DimensionsScreenActivity.this).getPicking(SharedVars.mCurPickingId, new XMLRPCMethod.XMLRPCMethodCallback() {
 
 							@Override
 							public void succesed(Object result) {

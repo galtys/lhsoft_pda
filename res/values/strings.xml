@@ -50,6 +50,10 @@
 	<string name="picking_return_table_header_repair">Repair</string>
 	
 	<!-- Messages -->
+	<string name="credentials_not_load_message">The credentials are not loaded.</string>
+	<string name="invalid_storage_conf_file_message">The config file in device storage is invalid.</string>
+	<string name="invalid_dropbox_conf_file_message">The config file in drop box is invalid.</string>
+	<string name="no_exist_conf_file_message">Can not find config file.</string>
 	<string name="connecting_oerp_server_message">Connecting oerp server&#8230;</string>
 	<string name="connected_oerp_server_failed_message">Server connection failed.</string>
 	<string name="connected_oerp_server_success_message">Connected to oerp server successfully.</string>

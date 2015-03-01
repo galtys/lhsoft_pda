@@ -194,11 +194,11 @@ public class MainScreenActivity extends Activity {
 			return;
 		}
 
-		Oerp.getInstance().updatePicking(SharedVars.mCurPickingId, packageCount, packageType, qtyType, button, new XMLRPCMethod.XMLRPCMethodCallback() {
+		Oerp.getInstance(MainScreenActivity.this).updatePicking(SharedVars.mCurPickingId, packageCount, packageType, qtyType, button, new XMLRPCMethod.XMLRPCMethodCallback() {
 
 			@Override
 			public void succesed(Object result) {
-				Oerp.getInstance().getPicking(SharedVars.mCurPickingId, new XMLRPCMethod.XMLRPCMethodCallback() {
+				Oerp.getInstance(MainScreenActivity.this).getPicking(SharedVars.mCurPickingId, new XMLRPCMethod.XMLRPCMethodCallback() {
 
 					@Override
 					public void succesed(Object result) {

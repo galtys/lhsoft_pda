@@ -1,6 +1,7 @@
 package com.lhsoft.pda.ui.adapters;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.lhsoft.pda.R;
 
@@ -26,23 +27,23 @@ public class HomeListAdapter extends BaseAdapter{
 		public String carrier;
 	}
 	
-	private ArrayList<HomeItem> mHomes;
+	private HashMap<Integer, HomeItem> mHomes;
 	
 	public HomeListAdapter(OnPickingClickListener pickingClickListener) {
-		mHomes = new ArrayList<HomeItem>();
+		mHomes = new HashMap<Integer, HomeItem>();
 		mHomes.clear();
 		
 		mPickingClickListener = pickingClickListener;
 	}
 	
-	synchronized public void addHomeItem(String pickingName, boolean stage1, boolean stage2, String carrier) {
-		HomeItem mi = new HomeItem();
-		mi.pickingName = pickingName;
-		mi.stage1 = stage1;
-		mi.stage2 = stage2;
-		mi.carrier = carrier;
+	synchronized public void addHomeItem(Integer order, String pickingName, boolean stage1, boolean stage2, String carrier) {
+		HomeItem hi = new HomeItem();
+		hi.pickingName = pickingName;
+		hi.stage1 = stage1;
+		hi.stage2 = stage2;
+		hi.carrier = carrier;
 		
-		mHomes.add(mi);
+		mHomes.put(order, hi);
 	}
 	
 	public void clear() {

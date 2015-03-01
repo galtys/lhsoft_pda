@@ -79,7 +79,7 @@ public class PickingScreenActivity extends Activity {
 		
 		Integer[] moveIds = this.getMoveIds();
 		
-		Oerp.getInstance().getStockMoves(moveIds, new XMLRPCMethod.XMLRPCMethodCallback() {
+		Oerp.getInstance(PickingScreenActivity.this).getStockMoves(moveIds, new XMLRPCMethod.XMLRPCMethodCallback() {
 			
 			@Override
 			public void succesed(Object result) {
@@ -141,11 +141,11 @@ public class PickingScreenActivity extends Activity {
 		String packageType = SharedVars.mCurPicking.get(Oerp.PICKING_FIELD_PACK_TYPE).toString();
 		String qtyType = SharedVars.mCurPicking.get(Oerp.PICKING_FIELD_QTY_TYPE).toString();
 
-		Oerp.getInstance().updatePicking(SharedVars.mCurPickingId, packageCount, packageType, qtyType, button, new XMLRPCMethod.XMLRPCMethodCallback() {
+		Oerp.getInstance(PickingScreenActivity.this).updatePicking(SharedVars.mCurPickingId, packageCount, packageType, qtyType, button, new XMLRPCMethod.XMLRPCMethodCallback() {
 
 			@Override
 			public void succesed(Object result) {
-				Oerp.getInstance().getPicking(SharedVars.mCurPickingId, new XMLRPCMethod.XMLRPCMethodCallback() {
+				Oerp.getInstance(PickingScreenActivity.this).getPicking(SharedVars.mCurPickingId, new XMLRPCMethod.XMLRPCMethodCallback() {
 
 					@Override
 					public void succesed(Object result) {
@@ -192,7 +192,7 @@ public class PickingScreenActivity extends Activity {
 			PickingItem pi = mPickingListAdapter.getPickingItem(index);
 			
 			if (isReturn) {
-				Oerp.getInstance().updateReturnRepair(moveIds[index], pi.returned, pi.repair, new XMLRPCMethod.XMLRPCMethodCallback() {
+				Oerp.getInstance(PickingScreenActivity.this).updateReturnRepair(moveIds[index], pi.returned, pi.repair, new XMLRPCMethod.XMLRPCMethodCallback() {
 					
 					@Override
 					public void succesed(Object result) {
@@ -212,7 +212,7 @@ public class PickingScreenActivity extends Activity {
 					}
 				});
 			} else {
-				Oerp.getInstance().updateToFollow(moveIds[index], pi.toFollow, new XMLRPCMethod.XMLRPCMethodCallback() {
+				Oerp.getInstance(PickingScreenActivity.this).updateToFollow(moveIds[index], pi.toFollow, new XMLRPCMethod.XMLRPCMethodCallback() {
 					
 					@Override
 					public void succesed(Object result) {

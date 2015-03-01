@@ -13,7 +13,8 @@ public class SharedVars {
 	static public Integer mCurPickingId = null;
 	static public HashMap<String, Object> mCurPicking = null;
 	static public boolean mScanner = true;
-	static public String mInternalStoragePath = null;
+	
+	static public final String DBX_APP_KEY = "wu5vnd55gat43nr";
 	
 	static public View.OnFocusChangeListener mFocusChangeListener = new View.OnFocusChangeListener() {
 		
@@ -54,7 +55,21 @@ public class SharedVars {
 			
 			String qtyType = mCurPicking.get(Oerp.PICKING_FIELD_QTY_TYPE).toString();
 			Log.d(TAG, "Qty Type = " + qtyType);
-		}
+		}	
+	}
 	
+	static public void logPackageIds() {
+		if (mCurPicking != null) {
+			String TAG = "Current Picking Package Ids";
+			String result = "";
+			
+			Object[] ary = (Object[]) mCurPicking.get(Oerp.PICKING_FIELD_PACK_IDS);
+			int i;
+			for (i = 0; i < ary.length; i++) {
+				result += ary[i].toString() + " ";
+			}
+			
+			Log.d(TAG, result);
+		}
 	}
 }

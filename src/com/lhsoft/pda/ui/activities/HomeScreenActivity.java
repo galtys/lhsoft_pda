@@ -4,10 +4,12 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.dropbox.chooser.android.DbxChooser;
 import com.lhsoft.pda.R;
 import com.lhsoft.pda.manager.ActivityManager;
 import com.lhsoft.pda.ui.adapters.HomeListAdapter;
 import com.lhsoft.pda.ui.adapters.DimensionsListAdapter.DimensionItem;
+import com.lhsoft.pda.utils.ConfFileParser;
 import com.lhsoft.pda.utils.Oerp;
 import com.lhsoft.pda.utils.SharedVars;
 import com.lhsoft.pda.utils.xmlrpc.XMLRPCMethod;
@@ -17,6 +19,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Environment;
@@ -38,8 +41,13 @@ public class HomeScreenActivity extends Activity {
 	
 	private ListView mHomeList;
 	private HomeListAdapter mHomeListAdapter;
-
-	AtomicBoolean isScanning = new AtomicBoolean(false);
+	
+	static final int DBX_CHOOSER_REQUEST = 0;
+	private DbxChooser mChooser;
+	
+	private AtomicBoolean isScanning = new AtomicBoolean(false);
+	
+	private boolean mShowDropbox = false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -68,32 +76,111 @@ public class HomeScreenActivity extends Activity {
 		mHomeList = (ListView)findViewById(R.id.home_table);
 		mHomeList.setAdapter(mHomeListAdapter);
 		
+		mChooser = new DbxChooser(SharedVars.DBX_APP_KEY);
+		
 		SharedVars.mCurPickingId = null;
 		SharedVars.mCurPicking = null;
+		
+		prepareConnectOerp();
 	}
-
+	
+	private void prepareConnectOerp() {
+		Resources res = getResources();
+		
+		if (Oerp.getInstance(HomeScreenActivity.this).isConnected()) {
+			getPickingData();
+		} else {
+			int err = Oerp.getInstance(HomeScreenActivity.this).loadCredentials();
+			if (err != ConfFileParser.PARSE_OK) {
+				switch (err) {
+				case ConfFileParser.PARSE_ERROR_OTHER:
+					showFinishAlert(res.getString(R.string.invalid_storage_conf_file_message));
+					break;
+				case ConfFileParser.PARSE_ERROR_NOEXIST:
+					Toast.makeText(HomeScreenActivity.this, res.getString(R.string.no_exist_conf_file_message), Toast.LENGTH_LONG).show();
+					showDropBox();
+					break;
+				}
+			} else {
+				connectOerp();
+			}
+		}
+	}
+	
+	private void showDropBox() {
+		if (!mShowDropbox) {
+			mChooser.forResultType(DbxChooser.ResultType.FILE_CONTENT).launch(HomeScreenActivity.this, DBX_CHOOSER_REQUEST);
+			mShowDropbox = true;
+		}
+	}
+	
+	@Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		Resources res = getResources();
+		
+        if (requestCode == DBX_CHOOSER_REQUEST) {
+        	mShowDropbox = false;
+            if (resultCode == Activity.RESULT_OK) {
+                DbxChooser.Result result = new DbxChooser.Result(data);
+                String confFilePath = result.getLink().getPath();
+                
+                int err = Oerp.getInstance(HomeScreenActivity.this).loadCredentials(confFilePath);
+    			if (err != ConfFileParser.PARSE_OK) {
+    				switch (err) {
+    				case ConfFileParser.PARSE_ERROR_OTHER:
+    					showFinishAlert(res.getString(R.string.invalid_dropbox_conf_file_message));
+    					break;
+    				case ConfFileParser.PARSE_ERROR_NOEXIST:
+    					showFinishAlert(res.getString(R.string.no_exist_conf_file_message));
+    					break;
+    				}
+    			} else {
+    				connectOerp();
+    			}
+                
+                Log.d(TAG, "Dropbox: " + confFilePath);
+            } else {
+                // Failed or was cancelled by the user.
+            	finish();
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+	
 	@Override
 	public void onResume() {
 		super.onResume();
-		
-		connectOerp();
 	}
 
-	private void connectOerp() {
-		SharedVars.mInternalStoragePath = Environment.getExternalStorageDirectory().getAbsolutePath();		
+	private void showFinishAlert(String message) {
+		new AlertDialog.Builder(HomeScreenActivity.this)
+		.setTitle("")
+		.setMessage(message)
+		.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				HomeScreenActivity.this.finish();
+			}
+		})
+		.show();
+	}
+	
+	private void connectOerp() {		
 		
 		final Resources res = getResources();
 
-		if (Oerp.getInstance().isConnected()) {
+		if (Oerp.getInstance(HomeScreenActivity.this).isConnected()) {
 			getPickingData();
 			return;
 		}
-		
+				
 		final ProgressDialog progressDialog = ProgressDialog.show(HomeScreenActivity.this, "", res.getString(R.string.connecting_oerp_server_message));
 		progressDialog.show();
 
 		Log.d(TAG, "Connection start");
-		Oerp.getInstance().connect(new XMLRPCMethod.XMLRPCMethodCallback() {
+		Oerp.getInstance(HomeScreenActivity.this).connect(new XMLRPCMethod.XMLRPCMethodCallback() {
 
 			@Override
 			public void succesed(Object result) {
@@ -112,17 +199,7 @@ public class HomeScreenActivity extends Activity {
 					progressDialog.cancel();
 				}
 
-				new AlertDialog.Builder(HomeScreenActivity.this)
-				.setTitle("")
-				.setMessage(res.getString(R.string.connected_oerp_server_failed_message))
-				.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						HomeScreenActivity.this.finish();
-					}
-				})
-				.show();
+				showFinishAlert(res.getString(R.string.connected_oerp_server_failed_message) + "\n" + message);
 			}
 		});
 	}
@@ -146,7 +223,7 @@ public class HomeScreenActivity extends Activity {
 		if (!SharedVars.mScanner)
 			return;
 		
-		if (!Oerp.getInstance().isConnected())
+		if (!Oerp.getInstance(HomeScreenActivity.this).isConnected())
 			return;
 		
 		final Resources res = getResources();
@@ -216,7 +293,7 @@ public class HomeScreenActivity extends Activity {
 		final ProgressDialog progressDialog = ProgressDialog.show(this, "", res.getString(R.string.getting_picking_data_from_server_message));
 		progressDialog.show();
 		
-		Oerp.getInstance().getPickingId(pickingName, new XMLRPCMethod.XMLRPCMethodCallback() {
+		Oerp.getInstance(HomeScreenActivity.this).getPickingId(pickingName, new XMLRPCMethod.XMLRPCMethodCallback() {
 
 			@Override
 			public void succesed(Object result) {
@@ -230,7 +307,7 @@ public class HomeScreenActivity extends Activity {
 				
 				Log.d(TAG, "Picking Id = " + result.toString());
 				
-				Oerp.getInstance().getPicking(SharedVars.mCurPickingId, new XMLRPCMethod.XMLRPCMethodCallback() {
+				Oerp.getInstance(HomeScreenActivity.this).getPicking(SharedVars.mCurPickingId, new XMLRPCMethod.XMLRPCMethodCallback() {
 					
 					@Override
 					public void succesed(Object result) {
@@ -295,7 +372,7 @@ public class HomeScreenActivity extends Activity {
 
 		mHomeListAdapter.clear();
 		
-		Oerp.getInstance().getCurrentPickings(new XMLRPCMethod.XMLRPCMethodCallback() {
+		Oerp.getInstance(HomeScreenActivity.this).getCurrentPickings(new XMLRPCMethod.XMLRPCMethodCallback() {
 
 			@Override
 			public void succesed(Object result) {
@@ -313,11 +390,15 @@ public class HomeScreenActivity extends Activity {
 				int i;
 				
 				Integer[] pIds = new Integer[ary.length];
+				final HashMap<Integer, Integer> pIdOrder = new HashMap<Integer, Integer>();
+				
 				for (i = 0; i < ary.length; i ++) {
 					pIds[i] = Integer.valueOf(ary[i].toString());
+					pIdOrder.put(pIds[i], i);
+					Log.d(TAG, "Orgin: " + pIds[i]);
 				}
 				
-				Oerp.getInstance().getPicking(pIds, new XMLRPCMethod.XMLRPCMethodCallback() {
+				Oerp.getInstance(HomeScreenActivity.this).getPicking(pIds, new XMLRPCMethod.XMLRPCMethodCallback() {
 					
 					@Override
 					public void succesed(Object result) {
@@ -337,6 +418,7 @@ public class HomeScreenActivity extends Activity {
 							HashMap<String, Object> picking;
 							picking = (HashMap<String, Object>) ary[j];
 							
+							Integer pId = Integer.valueOf(picking.get("id").toString());
 							String pickingName = picking.get(Oerp.PICKING_FIELD_NAME).toString();
 							boolean stage1 = Boolean.valueOf(picking.get(Oerp.PICKING_FIELD_STAGE1).toString()).booleanValue();
 							boolean stage2 = Boolean.valueOf(picking.get(Oerp.PICKING_FIELD_STAGE2).toString()).booleanValue();
@@ -350,9 +432,11 @@ public class HomeScreenActivity extends Activity {
 								carrier = "";
 							}
 							
-							mHomeListAdapter.addHomeItem(pickingName, stage1, stage2, carrier);
-							mHomeListAdapter.notifyDataSetChanged();
+							Integer order = pIdOrder.get(pId);
+							Log.d(TAG, "New: " + pId + " " + order);
+							mHomeListAdapter.addHomeItem(order, pickingName, stage1, stage2, carrier);
 						}
+						mHomeListAdapter.notifyDataSetChanged();
 						
 						if (progressDialog.isShowing()) {
 							progressDialog.cancel();
@@ -387,11 +471,11 @@ public class HomeScreenActivity extends Activity {
 		String packageType = SharedVars.mCurPicking.get(Oerp.PICKING_FIELD_PACK_TYPE).toString();
 		String qtyType = SharedVars.mCurPicking.get(Oerp.PICKING_FIELD_QTY_TYPE).toString();
 
-		Oerp.getInstance().updatePicking(SharedVars.mCurPickingId, packageCount, packageType, qtyType, button, new XMLRPCMethod.XMLRPCMethodCallback() {
+		Oerp.getInstance(HomeScreenActivity.this).updatePicking(SharedVars.mCurPickingId, packageCount, packageType, qtyType, button, new XMLRPCMethod.XMLRPCMethodCallback() {
 
 			@Override
 			public void succesed(Object result) {
-				Oerp.getInstance().getPicking(SharedVars.mCurPickingId, new XMLRPCMethod.XMLRPCMethodCallback() {
+				Oerp.getInstance(HomeScreenActivity.this).getPicking(SharedVars.mCurPickingId, new XMLRPCMethod.XMLRPCMethodCallback() {
 
 					@Override
 					public void succesed(Object result) {

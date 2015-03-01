@@ -1,9 +1,12 @@
 package com.lhsoft.pda.ui.adapters;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 
 import com.lhsoft.pda.R;
+import com.lhsoft.pda.ui.adapters.PhotoListAdapter.PhotoItem;
 import com.lhsoft.pda.utils.SharedVars;
 
 import android.content.Context;
@@ -38,10 +41,10 @@ public class DimensionsListAdapter extends BaseAdapter{
 		public Integer height;
 	}
 	
-	private HashMap<Integer, DimensionItem> mDimensions;
+	private ArrayList<DimensionItem> mDimensions;
 	
 	public DimensionsListAdapter() {
-		mDimensions = new HashMap<Integer, DimensionItem>();
+		mDimensions = new ArrayList<DimensionItem>();
 		mDimensions.clear();
 	}
 	
@@ -53,31 +56,40 @@ public class DimensionsListAdapter extends BaseAdapter{
 		di.depth = depth;
 		di.height = height;
 		
-		mDimensions.put(number, di);
+		mDimensions.add(di);
+	}
+	
+	public void sort() {
+		Collections.sort(mDimensions, new Comparator<DimensionItem>() {
+			@Override
+			public int compare(DimensionItem lhs, DimensionItem rhs) {
+				return lhs.number.compareTo(rhs.number);
+			}
+		});
 	}
 	
 	synchronized private void setTrash(int position, boolean newTrash) {
-		DimensionItem di = mDimensions.get(position + 1);
+		DimensionItem di = mDimensions.get(position);
 		di.trash = newTrash;
 	}
 	
 	synchronized private void setWidth(int position, Integer newWidth) {
-		DimensionItem di = mDimensions.get(position + 1);
+		DimensionItem di = mDimensions.get(position);
 		di.width = newWidth;
 	}
 	
 	synchronized private void setDepth(int position, Integer newDepth) {
-		DimensionItem di = mDimensions.get(position + 1);
+		DimensionItem di = mDimensions.get(position);
 		di.depth = newDepth;
 	}
 	
 	synchronized private void setHeight(int position, Integer newHeight) {
-		DimensionItem di = mDimensions.get(position + 1);
+		DimensionItem di = mDimensions.get(position);
 		di.height = newHeight;
 	}
 	
 	public DimensionItem getDimensionItem(int index) {
-		return mDimensions.get(index + 1);
+		return mDimensions.get(index);
 	}
 	
 	@Override
@@ -87,7 +99,7 @@ public class DimensionsListAdapter extends BaseAdapter{
 
 	@Override
 	public DimensionItem getItem(int position) {
-		return mDimensions.get(position + 1);
+		return mDimensions.get(position);
 	}
 
 	@Override
@@ -118,7 +130,7 @@ public class DimensionsListAdapter extends BaseAdapter{
 		
 		DimensionItem di = getItem(position);
 
-		Log.e(TAG, position + " " + di.width + " " + di.height + " " + di.depth);
+		Log.e(TAG, position + " " + di.width + " " + di.height + " " + di.depth + " " + di.trash);
 		trashButton.setChecked(!di.trash);
 		palletNoLabel.setText(di.number.toString());
 		widthEdit.setText(di.width.toString());

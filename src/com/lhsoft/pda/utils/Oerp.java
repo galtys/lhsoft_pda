@@ -1,10 +1,21 @@
 package com.lhsoft.pda.utils;
 
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Properties;
+
 import org.xmlrpc.android.XMLRPCClient;
+
+import android.content.Context;
+import android.content.res.Resources;
+import android.os.Environment;
 import android.util.Log;
 
+import com.lhsoft.pda.R;
 import com.lhsoft.pda.utils.xmlrpc.XMLRPCMethod;
 
 public class Oerp {
@@ -56,12 +67,14 @@ public class Oerp {
 	public static final String PICKING_FIELD_ALLOW = "allow_pda";
 	
 	
-	public static final String DIMENSION_FIELD_PICKING = "picking_id";
-	public static final String DIMENSION_FIELD_TRASH = "trash";
-	public static final String DIMENSION_FIELD_NUMBER = "number";
-	public static final String DIMENSION_FIELD_WIDTH = "w";
-	public static final String DIMENSION_FIELD_DEPTH = "d";
-	public static final String DIMENSION_FIELD_HEIGHT = "h";
+	public static final String TRACKING_FIELD_PICKING = "picking_id";
+	public static final String TRACKING_FIELD_TRASH = "trash";
+	public static final String TRACKING_FIELD_NUMBER = "number";
+	public static final String TRACKING_FIELD_WIDTH = "w";
+	public static final String TRACKING_FIELD_DEPTH = "d";
+	public static final String TRACKING_FIELD_HEIGHT = "h";
+	public static final String TRACKING_FIELD_PHOTO1 = "has_photo1";
+	public static final String TRACKING_FIELD_PHOTO2 = "has_photo2";
 	
 	public static final String STOCK_MOVE_FIELD_NAME = "name";
 	public static final String STOCK_MOVE_FIELD_DATE = "date";
@@ -76,45 +89,95 @@ public class Oerp {
 	private static final String PASSWORD = "password";
 	private static final String DATABASE = "database";
 	
+	private Context mContext = null;
 	private static Oerp mInstance = null;
 	private XMLRPCClient mClient;
 	private Integer mUid;
-
+	private boolean mCredentialLoad;
+	
 	private String mApiUrl;
 	private String mUserName;
 	private String mPassword;
 	private String mDatabase;
 
-	static public Oerp getInstance() {
+	static public Oerp getInstance(Context context) {
 		if (mInstance == null) {
-			mInstance = new Oerp();
+			mInstance = new Oerp(context);
 		}
 		return mInstance;
 	}
 
-	public void loadCredentials() {
-		String confFileName = SharedVars.mInternalStoragePath + "/cfg/pda.conf";
-		ConfFileParser cfp = new ConfFileParser(confFileName);
-		
-		HashMap<String, String> result = new HashMap<String, String>();
-		int err = cfp.parse(result);
-		
+	public Oerp(Context context) {
+		mContext = context;
+	}
+	
+	public void loadDefaultCredentials() {
 		mApiUrl = "http://galtys.com:8069/";
 		mUserName = "admin";
 		mPassword = "ENFIELD8ABA100";
 		mDatabase = "pjb-2015-02-16_1533";
+	}
+	
+	public int loadCredentials() {
+		String internalStoragePath = Environment.getExternalStorageDirectory().getAbsolutePath();
+		String confFileName = internalStoragePath + "/cfg/pda.conf";
 		
-		if (err == ConfFileParser.PARSE_OK) {
-			mApiUrl = result.get(API_URL);
-			mUserName = result.get(USER_NAME);
-			mPassword = result.get(PASSWORD);
-			mDatabase = result.get(DATABASE);
+		return loadCredentials(confFileName);
+	}
+	
+	public int loadCredentials(String filePath) {
+		mCredentialLoad = false;
+		
+		ConfFileParser cfp = new ConfFileParser(filePath);
+		
+		HashMap<String, String> result = new HashMap<String, String>();
+		//int err = cfp.parse(result);
+		
+		Properties prop = new Properties();
+		InputStream is;
+		
+		try {
+			is = new FileInputStream(filePath);
+			try {
+				prop.load(is);
+
+				mApiUrl = prop.getProperty(API_URL);
+				if (mApiUrl == null) {
+					return ConfFileParser.PARSE_ERROR_OTHER;
+				}
+				
+				mUserName = prop.getProperty(USER_NAME);
+				if (mUserName == null) {
+					return ConfFileParser.PARSE_ERROR_OTHER;
+				}
+				
+				mPassword = prop.getProperty(PASSWORD);
+				if (mPassword == null) {
+					return ConfFileParser.PARSE_ERROR_OTHER;
+				}
+				
+				mDatabase = prop.getProperty(DATABASE);
+				if (mDatabase == null) {
+					return ConfFileParser.PARSE_ERROR_OTHER;
+				}
+				
+			} catch (IOException e) {
+				e.printStackTrace();
+				return ConfFileParser.PARSE_ERROR_OTHER;
+			}
+			
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return ConfFileParser.PARSE_ERROR_NOEXIST;
 		}
-		
+				
 		Log.d(TAG, "Server: " + mApiUrl);
 		Log.d(TAG, "Username: " + mUserName);
 		Log.d(TAG, "Password: " + mPassword);
 		Log.d(TAG, "Database: " + mDatabase);
+		
+		mCredentialLoad = true;
+		return ConfFileParser.PARSE_OK;
 	}
 	
 	public boolean isConnected() {
@@ -122,8 +185,11 @@ public class Oerp {
 	}
 
 	public void connect(final XMLRPCMethod.XMLRPCMethodCallback callback) {
-		
-		loadCredentials();
+
+		if (!mCredentialLoad) {
+			callback.failed(mContext.getResources().getString(R.string.credentials_not_load_message));
+			return;
+		}
 		
 		XMLRPCClient common = new XMLRPCClient(mApiUrl + "xmlrpc/common");
 
@@ -197,7 +263,7 @@ public class Oerp {
 	
 	public void uploadPhoto(Integer pId, Integer number, Integer photoNumber, byte[] binaryData, XMLRPCMethod.XMLRPCMethodCallback callback) {
 		String photoString = "photo" + photoNumber; 
-		Log.d(TAG, "Number = " + number + " Phto = " + photoString);
+		Log.d(TAG, "Number = " + number + " Photo = " + photoString);
 		
 		XMLRPCMethod method = new XMLRPCMethod(mClient, "execute", callback);
 		Object[] params = {
@@ -262,6 +328,7 @@ public class Oerp {
 	
 	public void getPicking(Integer[] pIds, XMLRPCMethod.XMLRPCMethodCallback callback) {
 		String[] fnames = {
+				"id",
 				PICKING_FIELD_NAME,
 				PICKING_FIELD_TYPE,
 				PICKING_FIELD_NEXT_SCREEN,
@@ -296,10 +363,15 @@ public class Oerp {
 		};
 		method.call(params);
 	}
+	
+	public void getTracking(Integer pId, Integer number, final XMLRPCMethod.XMLRPCMethodCallback callback) {
+		getDimension(pId, number, callback);
+	}
+	
 	public void getDimension(Integer pId, Integer number, final XMLRPCMethod.XMLRPCMethodCallback callback) {
 		Object[][] condition = {
-				{ DIMENSION_FIELD_PICKING, "=", pId },
-				{ DIMENSION_FIELD_NUMBER, "=", number }
+				{ TRACKING_FIELD_PICKING, "=", pId },
+				{ TRACKING_FIELD_NUMBER, "=", number }
 		};
 
 		this.search("stock.tracking", condition, new XMLRPCMethod.XMLRPCMethodCallback() {
@@ -314,11 +386,13 @@ public class Oerp {
 				Object[] ary = (Object[]) result;
 				Integer[] dId = { Integer.valueOf(ary[0].toString()) };
 				String[] fnames = {
-						DIMENSION_FIELD_TRASH,
-						DIMENSION_FIELD_NUMBER, 
-						DIMENSION_FIELD_WIDTH, 
-						DIMENSION_FIELD_DEPTH, 
-						DIMENSION_FIELD_HEIGHT
+						TRACKING_FIELD_TRASH,
+						TRACKING_FIELD_NUMBER, 
+						TRACKING_FIELD_WIDTH, 
+						TRACKING_FIELD_DEPTH, 
+						TRACKING_FIELD_HEIGHT,
+						TRACKING_FIELD_PHOTO1,
+						TRACKING_FIELD_PHOTO2
 				};
 
 				read("stock.tracking", dId, fnames, new XMLRPCMethod.XMLRPCMethodCallback() {

@@ -2,6 +2,7 @@ package com.lhsoft.pda.ui.activities;
 
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.http.util.ByteArrayBuffer;
 
@@ -38,7 +39,10 @@ public class TakePhotoScreenActivity extends Activity {
 	private ListView mPhotoList;
 	private PhotoListAdapter mPhotoListAdapter;
 	
+	private AtomicInteger mReadCount;
+	
 	private int mCurPosition;
+	private int mCurNumber;
 	private int mCurPhoto;
 	
 	@Override
@@ -70,7 +74,7 @@ public class TakePhotoScreenActivity extends Activity {
 	        imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
 	        byte[] byteArray = stream.toByteArray(); 
 	        
-	        Oerp.getInstance().uploadPhoto(SharedVars.mCurPickingId, mCurPosition + 1, mCurPhoto + 1, byteArray, new XMLRPCMethod.XMLRPCMethodCallback() {
+	        Oerp.getInstance(TakePhotoScreenActivity.this).uploadPhoto(SharedVars.mCurPickingId, mCurNumber, mCurPhoto + 1, byteArray, new XMLRPCMethod.XMLRPCMethodCallback() {
 				
 				@Override
 				public void succesed(Object result) {
@@ -111,63 +115,74 @@ public class TakePhotoScreenActivity extends Activity {
 		String pickingName = SharedVars.mCurPicking.get(Oerp.PICKING_FIELD_NAME).toString();
 		mPickingName.setText(pickingName);
 		
-		Oerp.getInstance().getPhotos(SharedVars.mCurPickingId, new XMLRPCMethod.XMLRPCMethodCallback() {
+		int i;
+		mReadCount = new AtomicInteger(0);
+
+		final Integer packageCount = Integer.valueOf(SharedVars.mCurPicking.get(Oerp.PICKING_FIELD_PACK_COUNT).toString());
+		String packageType = SharedVars.mCurPicking.get(Oerp.PICKING_FIELD_PACK_TYPE).toString();
+		
+		mPhotoListAdapter.setPackType(packageType);
+		mPhotoListAdapter.setAdapterListener(new PhotoListAdapter.OnAdapterListener() {
 			
 			@Override
-			public void succesed(Object result) {
-				Log.d(TAG, result.toString());
+			public void onPhoto(int position, int number, int photo) {
+				mCurPosition = position;
+				mCurNumber = number;
+				mCurPhoto = photo;
 				
-				String packageType = SharedVars.mCurPicking.get(Oerp.PICKING_FIELD_PACK_TYPE).toString();
-				Integer packageCount = Integer.valueOf(SharedVars.mCurPicking.get(Oerp.PICKING_FIELD_PACK_COUNT).toString());
-				
-				mPhotoListAdapter.setData(packageType, packageCount);
-				mPhotoListAdapter.setAdapterListener(new PhotoListAdapter.OnAdapterListener() {
-					
-					@Override
-					public void onPhoto(int position, int photo) {
-						mCurPosition = position;
-						mCurPhoto = photo;
-						
-						Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-					    if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-					        startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-					    }
-					}
-				});
-				
-				Object[] ary1 = (Object[]) result;
-				int i, j;
-				for (i = 0; i < ary1.length; i++) {
-					Object[] ary2 = (Object[]) ary1[i];
-					for (j = 0; j < ary2.length; j++) {
-						
-						if (Boolean.valueOf(ary2[j].toString())) {
-							mPhotoListAdapter.setCheck(j, i);
-							mPhotoListAdapter.notifyDataSetChanged();
-						}
-					}
-				}
-				
-				//TEST CODE
-				Object[] package_ids = (Object[]) SharedVars.mCurPicking.get(Oerp.PICKING_FIELD_PACK_IDS);
-				for (j = 0; j < package_ids.length; j++) {
-					Log.d(TAG, "Package Id = " + package_ids[j].toString());
-				}
-				
-				if (progressDialog.isShowing()) {
-					progressDialog.cancel();
-				}
-			}
-			
-			@Override
-			public void failed(String message) {
-				if (progressDialog.isShowing()) {
-					progressDialog.cancel();
-				}
-				Toast.makeText(TakePhotoScreenActivity.this, message, Toast.LENGTH_SHORT).show();
+				Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+			    if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+			        startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+			    }
 			}
 		});
 		
+		SharedVars.logPackageIds();
+		
+		for (i = 0; i < packageCount; i ++) {
+			final Integer number = Integer.valueOf(i + 1);
+			Oerp.getInstance(TakePhotoScreenActivity.this).getTracking(SharedVars.mCurPickingId, number, new XMLRPCMethod.XMLRPCMethodCallback() {
+
+				@Override
+				public void succesed(Object result) {
+					if (result != null) {
+						Object[] ary = (Object[]) result;
+						
+						HashMap<String, Object> tracking = (HashMap<String, Object>) ary[0];
+						
+						boolean trash = Boolean.valueOf(tracking.get(Oerp.TRACKING_FIELD_TRASH).toString()).booleanValue();
+						if (!trash) {
+							mPhotoListAdapter.addPhotoItem(
+									number, 
+									Boolean.valueOf(tracking.get(Oerp.TRACKING_FIELD_PHOTO1).toString()).booleanValue(), 
+									Boolean.valueOf(tracking.get(Oerp.TRACKING_FIELD_PHOTO2).toString()).booleanValue() 
+									);
+						}
+					}
+					
+					if (packageCount.equals(mReadCount.incrementAndGet())) {
+						if (progressDialog.isShowing()) {
+							progressDialog.cancel();
+						}
+						mPhotoListAdapter.sort();
+						mPhotoListAdapter.notifyDataSetChanged();
+					}
+				}
+
+				@Override
+				public void failed(String message) {
+					Toast.makeText(TakePhotoScreenActivity.this, message, Toast.LENGTH_SHORT).show();
+
+					if (packageCount.equals(mReadCount.incrementAndGet())) {
+						if (progressDialog.isShowing()) {
+							progressDialog.cancel();
+						}
+						mPhotoListAdapter.sort();
+						mPhotoListAdapter.notifyDataSetChanged();
+					}
+				}
+			});
+		}
 	}
 	
 	private void setPickingData(String button, final XMLRPCMethod.XMLRPCMethodCallback callback) {
@@ -177,11 +192,11 @@ public class TakePhotoScreenActivity extends Activity {
 		String packageType = SharedVars.mCurPicking.get(Oerp.PICKING_FIELD_PACK_TYPE).toString();
 		String qtyType = SharedVars.mCurPicking.get(Oerp.PICKING_FIELD_QTY_TYPE).toString();
 
-		Oerp.getInstance().updatePicking(SharedVars.mCurPickingId, packageCount, packageType, qtyType, button, new XMLRPCMethod.XMLRPCMethodCallback() {
+		Oerp.getInstance(TakePhotoScreenActivity.this).updatePicking(SharedVars.mCurPickingId, packageCount, packageType, qtyType, button, new XMLRPCMethod.XMLRPCMethodCallback() {
 
 			@Override
 			public void succesed(Object result) {
-				Oerp.getInstance().getPicking(SharedVars.mCurPickingId, new XMLRPCMethod.XMLRPCMethodCallback() {
+				Oerp.getInstance(TakePhotoScreenActivity.this).getPicking(SharedVars.mCurPickingId, new XMLRPCMethod.XMLRPCMethodCallback() {
 
 					@Override
 					public void succesed(Object result) {
@@ -224,43 +239,25 @@ public class TakePhotoScreenActivity extends Activity {
 		final Resources res = getResources();
 		final ProgressDialog progressDialog = ProgressDialog.show(this, "", res.getString(R.string.process_message));
 		progressDialog.show();
-		
-		Oerp.getInstance().testHasPhotos(SharedVars.mCurPickingId, new XMLRPCMethod.XMLRPCMethodCallback() {
-			
+				
+		setPickingData(button, new XMLRPCMethod.XMLRPCMethodCallback() {
+
 			@Override
 			public void succesed(Object result) {
-				boolean hasPhoto = Boolean.valueOf(result.toString());
-				Log.d(TAG, "has photo = " + hasPhoto);
+				if (progressDialog.isShowing()) {
+					progressDialog.cancel();
+				}
+
+				boolean hasPhoto = Boolean.valueOf(SharedVars.mCurPicking.get(Oerp.PICKING_FIELD_STAGE2).toString()).booleanValue(); 
 				if (hasPhoto || !validation) {
-					setPickingData(button, new XMLRPCMethod.XMLRPCMethodCallback() {
-
-						@Override
-						public void succesed(Object result) {
-							if (progressDialog.isShowing()) {
-								progressDialog.cancel();
-							}
-
-							String nextScreen = result.toString();
-
-							ActivityManager.getInstance().showNextScreenActivity(TakePhotoScreenActivity.this, nextScreen);
-						}
-
-						@Override
-						public void failed(String message) {
-							if (progressDialog.isShowing()) {
-								progressDialog.cancel();
-							}
-							Toast.makeText(TakePhotoScreenActivity.this, message, Toast.LENGTH_SHORT).show();
-						}
-					});
+					String nextScreen = result.toString();
+	
+					ActivityManager.getInstance().showNextScreenActivity(TakePhotoScreenActivity.this, nextScreen);
 				} else {
-					if (progressDialog.isShowing()) {
-						progressDialog.cancel();
-					}
 					Toast.makeText(TakePhotoScreenActivity.this, res.getString(R.string.take_all_photo_message), Toast.LENGTH_SHORT).show();
 				}
 			}
-			
+
 			@Override
 			public void failed(String message) {
 				if (progressDialog.isShowing()) {

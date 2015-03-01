@@ -35,13 +35,23 @@ public class ConfFileParser {
 		}
 		
 		try {
+			boolean ok = true;
 			BufferedReader br = new BufferedReader(new FileReader(mFileName));
 			String line;
 			while ((line = br.readLine()) != null ) {
 				String[] ary = line.split("=", 2);
-				result.put(ary[0], ary[1]);
+				if (ary.length == 2) {
+					result.put(ary[0], ary[1]);
+				} else {
+					ok = false;
+					break;
+				}
 			}
 			br.close();
+			
+			if (!ok) {
+				return PARSE_ERROR_OTHER;
+			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			return PARSE_ERROR_NOEXIST;

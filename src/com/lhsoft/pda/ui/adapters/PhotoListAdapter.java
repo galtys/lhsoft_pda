@@ -104,6 +104,7 @@ public class PhotoListAdapter extends BaseAdapter{
 			photo1Button.setTextColor(Color.WHITE);
 		} else {
 			photo1Button.setBackground(res.getDrawable(R.drawable.button_background));
+			photo1Button.setTextColor(res.getColorStateList(R.color.button_textcolor));
 		}
 
 		if (pi.photo[1]) {
@@ -111,6 +112,7 @@ public class PhotoListAdapter extends BaseAdapter{
 			photo2Button.setTextColor(Color.WHITE);
 		} else {
 			photo2Button.setBackground(res.getDrawable(R.drawable.button_background));
+			photo2Button.setTextColor(res.getColorStateList(R.color.button_textcolor));
 		}
 
 		if (mPackType.equals(Oerp.PACKAGE_TYPE_BOX)) {

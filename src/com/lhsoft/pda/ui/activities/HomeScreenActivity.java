@@ -48,7 +48,7 @@ public class HomeScreenActivity extends Activity {
 	private AtomicBoolean isScanning = new AtomicBoolean(false);
 	
 	private boolean mShowDropbox = false;
-	
+	private boolean mFirstTime = true;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -80,8 +80,6 @@ public class HomeScreenActivity extends Activity {
 		
 		SharedVars.mCurPickingId = null;
 		SharedVars.mCurPicking = null;
-		
-		prepareConnectOerp();
 	}
 	
 	private void prepareConnectOerp() {
@@ -151,6 +149,11 @@ public class HomeScreenActivity extends Activity {
 	@Override
 	public void onResume() {
 		super.onResume();
+		
+		if (mFirstTime) {
+			prepareConnectOerp();
+			mFirstTime = false;
+		}
 	}
 
 	private void showFinishAlert(String message) {

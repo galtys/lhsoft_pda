@@ -71,6 +71,8 @@ public class XMLRPCMethod extends Thread {
 				}
 			});
 		} catch (final XMLRPCFault e) {
+			mRunning.set(false);
+			
 			mHandler.post(new Runnable() {
 				public void run() {
 					Log.d(TAG, "Fault message: " + e.getFaultString() + "\nFault code: " + e.getFaultCode());
@@ -78,6 +80,8 @@ public class XMLRPCMethod extends Thread {
 				}
 			});
 		} catch (final XMLRPCException e) {
+			mRunning.set(false);
+			
 			mHandler.post(new Runnable() {
 				public void run() {
 

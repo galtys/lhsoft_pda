@@ -261,7 +261,7 @@ public class Oerp {
 		method.call(params);
 	}
 	
-	public void uploadPhoto(Integer pId, Integer number, Integer photoNumber, byte[] binaryData, XMLRPCMethod.XMLRPCMethodCallback callback) {
+	public void uploadPhoto(Integer pId, Integer number, Integer photoNumber, String binaryData, XMLRPCMethod.XMLRPCMethodCallback callback) {
 		String photoString = "photo" + photoNumber; 
 		Log.d(TAG, "Number = " + number + " Photo = " + photoString);
 		

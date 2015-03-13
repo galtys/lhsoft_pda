@@ -176,10 +176,10 @@ AuthScope.ANY_REALM),
 			HttpEntity entity = new StringEntity(body);
 			postMethod.setEntity(entity);
 
-			//Log.d(Tag.LOG, "ros HTTP POST");
+			Log.d(Tag.LOG, "ros HTTP POST");
 			// execute HTTP POST request
 			HttpResponse response = client.execute(postMethod);
-			//Log.d(Tag.LOG, "ros HTTP POSTed");
+			Log.d(Tag.LOG, "ros HTTP POSTed");
 
 			// check status code
 			int statusCode = response.getStatusLine().getStatusCode();
